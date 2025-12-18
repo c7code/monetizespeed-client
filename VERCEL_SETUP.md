@@ -1,11 +1,16 @@
 # Configuração do Vercel - Variáveis de Ambiente
 
-## Problema
-A aplicação está tentando fazer requisições para `localhost:3000` em produção porque a variável de ambiente `VITE_API_URL` não está configurada.
+## ✅ Configuração Atual
 
-## Solução
+O frontend está configurado para usar automaticamente:
+- **Produção**: `https://monetizespeed-api.vercel.app/api`
+- **Desenvolvimento**: `http://localhost:3000/api`
 
-### 1. Configurar Variável de Ambiente no Vercel
+## Configuração Opcional (Variável de Ambiente)
+
+Se você quiser usar uma URL diferente da padrão, pode configurar a variável de ambiente `VITE_API_URL`:
+
+### 1. Configurar Variável de Ambiente no Vercel (Opcional)
 
 1. Acesse o [painel do Vercel](https://vercel.com/dashboard)
 2. Selecione seu projeto (`monetizespeed-client`)
@@ -13,15 +18,13 @@ A aplicação está tentando fazer requisições para `localhost:3000` em produ�
 4. Clique em **Add New**
 5. Configure:
    - **Name**: `VITE_API_URL`
-   - **Value**: URL do seu backend em produção
-     - Exemplo se backend está no Vercel: `https://seu-backend.vercel.app/api`
-     - Exemplo se backend está em outro servidor: `https://api.seudominio.com/api`
+   - **Value**: URL do seu backend (ex: `https://monetizespeed-api.vercel.app/api`)
    - **Environments**: Selecione todas (Production, Preview, Development)
 6. Clique em **Save**
 
 ### 2. Fazer Novo Deploy
 
-Após configurar a variável de ambiente:
+Se você configurar a variável de ambiente:
 
 1. Vá em **Deployments**
 2. Clique nos três pontos (...) do último deploy
@@ -31,18 +34,14 @@ Após configurar a variável de ambiente:
 ### 3. Verificar se Funcionou
 
 Após o deploy, abra o DevTools (F12) → Console e verifique:
-- Deve aparecer: `🔧 API URL configurada: [sua-url]`
-- As requisições devem ir para a URL configurada, não para `localhost:3000`
+- Deve aparecer: `🔧 API URL configurada: https://monetizespeed-api.vercel.app/api`
+- As requisições devem ir para a URL configurada
 
 ## Importante
 
+- ✅ **Por padrão**, o frontend já usa `https://monetizespeed-api.vercel.app/api` em produção
+- ⚠️ Se configurar `VITE_API_URL`, ela terá **prioridade** sobre o padrão
 - ⚠️ A variável **DEVE** começar com `VITE_` para ser exposta no build do Vite
 - ⚠️ A variável é incorporada no **build time**, não em runtime
-- ⚠️ Após adicionar a variável, é necessário fazer um **novo deploy**
 
-## Exemplo de URLs
-
-- **Backend no Vercel**: `https://monetizespeed-api.vercel.app/api`
-- **Backend em servidor próprio**: `https://api.monetizespeed.com/api`
-- **Backend na mesma origem**: `/api` (se estiver usando proxy)
 

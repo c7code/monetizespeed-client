@@ -34,10 +34,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ email, password }),
       })
 
-      const data = await response.json()
+      // Tenta parsear a resposta como JSON
+      let data
+      try {
+        data = await response.json()
+      } catch (parseError) {
+        // Se não conseguir parsear, pode ser que a resposta não seja JSON
+        const text = await response.text()
+        console.error('Resposta do servidor não é JSON:', text)
+        throw new Error(`Erro do servidor (${response.status}): ${text || response.statusText}`)
+      }
 
       if (!response.ok) {
-        throw new Error(data.error || 'Erro ao fazer login')
+        // Erro 500 geralmente indica problema no servidor
+        if (response.status === 500) {
+          console.error('Erro 500 do servidor:', data)
+          throw new Error(data.error || data.message || 'Erro interno do servidor. Verifique os logs do backend.')
+        }
+        // Outros erros (400, 401, 404, etc)
+        throw new Error(data.error || data.message || `Erro ao fazer login (${response.status})`)
       }
 
       localStorage.setItem('ms_token', data.token)
@@ -45,7 +60,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setToken(data.token)
       setUser(data.user)
     } catch (error: any) {
-      throw new Error(error.message || 'Erro ao fazer login')
+      // Se o erro já tem mensagem, usa ela; senão, cria uma mensagem genérica
+      if (error.message) {
+        throw error
+      }
+      throw new Error(error.message || 'Erro ao fazer login. Verifique sua conexão.')
     }
   }
 
@@ -59,10 +78,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ email, password, name }),
       })
 
-      const data = await response.json()
+      // Tenta parsear a resposta como JSON
+      let data
+      try {
+        data = await response.json()
+      } catch (parseError) {
+        const text = await response.text()
+        console.error('Resposta do servidor não é JSON:', text)
+        throw new Error(`Erro do servidor (${response.status}): ${text || response.statusText}`)
+      }
 
       if (!response.ok) {
-        throw new Error(data.error || 'Erro ao cadastrar')
+        if (response.status === 500) {
+          console.error('Erro 500 do servidor:', data)
+          throw new Error(data.error || data.message || 'Erro interno do servidor. Verifique os logs do backend.')
+        }
+        throw new Error(data.error || data.message || `Erro ao cadastrar (${response.status})`)
       }
 
       localStorage.setItem('ms_token', data.token)
@@ -70,7 +101,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setToken(data.token)
       setUser(data.user)
     } catch (error: any) {
-      throw new Error(error.message || 'Erro ao cadastrar')
+      if (error.message) {
+        throw error
+      }
+      throw new Error(error.message || 'Erro ao cadastrar. Verifique sua conexão.')
     }
   }
 
