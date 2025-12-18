@@ -1,0 +1,89 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ecfeff"/>
+      <stop offset="50%" stop-color="#e9d5ff"/>
+      <stop offset="100%" stop-color="#fee2e2"/>
+    </linearGradient>
+    <linearGradient id="coinGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="billGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  
+  <!-- Moedas decorativas -->
+  <g opacity="0.7">
+    <!-- Moeda grande -->
+    <circle cx="150" cy="150" r="50" fill="url(#coinGrad)"/>
+    <circle cx="150" cy="150" r="40" fill="none" stroke="#fff" stroke-width="2" opacity="0.3"/>
+    <text x="150" y="160" text-anchor="middle" fill="#fff" font-size="24" font-weight="bold" opacity="0.8">R$</text>
+    
+    <!-- Moeda média -->
+    <circle cx="650" cy="120" r="35" fill="url(#coinGrad)"/>
+    <circle cx="650" cy="120" r="28" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.3"/>
+    <text x="650" y="128" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold" opacity="0.8">R$</text>
+    
+    <!-- Moeda pequena -->
+    <circle cx="680" cy="480" r="25" fill="url(#coinGrad)"/>
+    <circle cx="680" cy="480" r="20" fill="none" stroke="#fff" stroke-width="1" opacity="0.3"/>
+    <text x="680" y="486" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold" opacity="0.8">R$</text>
+  </g>
+  
+  <!-- Notas de dinheiro decorativas -->
+  <g opacity="0.6">
+    <!-- Nota 1 -->
+    <rect x="500" y="80" width="60" height="35" rx="4" fill="url(#billGrad)"/>
+    <rect x="505" y="85" width="50" height="25" rx="2" fill="#fff" opacity="0.2"/>
+    <text x="530" y="102" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">R$</text>
+    
+    <!-- Nota 2 -->
+    <rect x="550" y="200" width="50" height="30" rx="4" fill="url(#billGrad)"/>
+    <rect x="555" y="205" width="40" height="20" rx="2" fill="#fff" opacity="0.2"/>
+    <text x="575" y="220" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">R$</text>
+    
+    <!-- Nota 3 -->
+    <rect x="620" y="350" width="55" height="32" rx="4" fill="url(#billGrad)"/>
+    <rect x="625" y="355" width="45" height="22" rx="2" fill="#fff" opacity="0.2"/>
+    <text x="647" y="372" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">R$</text>
+  </g>
+  
+  <!-- Gráfico de crescimento financeiro -->
+  <g transform="translate(100,350)">
+    <!-- Linha de crescimento -->
+    <polyline 
+      points="0,200 100,180 200,150 300,120 400,80 500,60 600,40 650,30" 
+      fill="none" 
+      stroke="#10b981" 
+      stroke-width="5" 
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <!-- Área preenchida -->
+    <polygon 
+      points="0,200 100,180 200,150 300,120 400,80 500,60 600,40 650,30 650,200 0,200" 
+      fill="url(#billGrad)" 
+      opacity="0.2"
+    />
+    <!-- Pontos no gráfico -->
+    <circle cx="100" cy="180" r="6" fill="#10b981"/>
+    <circle cx="300" cy="120" r="6" fill="#10b981"/>
+    <circle cx="500" cy="60" r="6" fill="#10b981"/>
+    <circle cx="650" cy="30" r="8" fill="#10b981"/>
+  </g>
+  
+  <!-- Símbolo de crescimento (seta para cima) -->
+  <g transform="translate(200,100)" opacity="0.5">
+    <path d="M 0 40 L 20 20 L 40 40 L 35 40 L 35 60 L 5 60 L 5 40 Z" fill="#10b981"/>
+  </g>
+  
+  <!-- Símbolo de economia/poupança -->
+  <g transform="translate(450,450)" opacity="0.4">
+    <circle cx="0" cy="0" r="40" fill="none" stroke="#10b981" stroke-width="3" stroke-dasharray="5,5"/>
+    <path d="M -20 -20 L 0 -40 L 20 -20" fill="#10b981" opacity="0.6"/>
+  </g>
+</svg>
