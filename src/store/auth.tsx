@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo, useState } from 'react'
-import { API_URL } from '../config/api'
+import { apiUrl } from '../config/api'
 
 type AuthContextType = { 
   token: string | null
@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function login(email: string, password: string) {
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
+      const response = await fetch(apiUrl('/auth/login'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function register(email: string, password: string, name?: string) {
     try {
-      const response = await fetch(`${API_URL}/auth/register`, {
+      const response = await fetch(apiUrl('/auth/register'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

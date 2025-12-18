@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useMemo, useState, useEffect } from 'react'
 import { useAuth } from './auth'
 import { categories } from '../mock/data'
-import { API_URL } from '../config/api'
+import { apiUrl } from '../config/api'
 
 export type Transaction = { id: string, type: 'income' | 'expense', category: string, amount: number, date: string, recurring?: boolean, receiptUrl?: string, description?: string, status?: 'paid' | 'received' | 'pending_payment' | 'pending_receipt' }
 export type Budget = { id: string, category: string, limit: number }
@@ -43,7 +43,7 @@ const DataContext = createContext<DataContextType>({
 
 async function apiCall(endpoint: string, options: RequestInit = {}) {
   const token = localStorage.getItem('ms_token')
-  const response = await fetch(`${API_URL}${endpoint}`, {
+  const response = await fetch(apiUrl(endpoint), {
     ...options,
     headers: {
       'Content-Type': 'application/json',
