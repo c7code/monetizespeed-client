@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../store/auth'
-import hero from '../assets/finance-hero.svg'
+import logo from '../assets/TUDO NO AZUL-03.png'
 
 export default function Register() {
   const { register } = useAuth()
@@ -39,75 +39,97 @@ export default function Register() {
   }
   
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black p-4">
-      <div className="w-full max-w-5xl grid md:grid-cols-2 bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-        <div className="p-4 sm:p-6 md:p-8">
-          <div className="text-xl sm:text-2xl font-semibold mb-2 text-white">MonetizeSpeed</div>
-          <div className="text-xs sm:text-sm text-gray-400 mb-4 sm:mb-6">Crie sua conta e comece a organizar suas finanças hoje mesmo.</div>
-          <form onSubmit={submit} className="grid gap-3">
-            <label className="text-xs sm:text-sm text-gray-300">Nome (opcional)</label>
-            <input 
-              className="w-full border border-gray-600 bg-gray-700 text-white rounded px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 placeholder-gray-400" 
-              value={name} 
-              onChange={e => setName(e.target.value)} 
-              type="text" 
-              placeholder="Seu nome" 
-            />
-            <label className="text-xs sm:text-sm text-gray-300">E-mail</label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16v12H4V6z" stroke="#9ca3af" strokeWidth="1.5"/><path d="M4 7l8 6 8-6" stroke="#9ca3af" strokeWidth="1.5"/></svg>
-              </span>
+    <div className="min-h-screen flex items-center justify-center bg-white p-4">
+      <div className="w-full max-w-md">
+        {/* Logo centralizada */}
+        <div className="flex justify-center mb-8">
+          <img src={logo} alt="tudo no azul" className="w-48 h-48" />
+        </div>
+        
+        {/* Card de registro */}
+        <div className="bg-white rounded-2xl shadow-lg border border-blue-100 p-6 sm:p-8">
+          <div className="text-center mb-6">
+            <h1 className="text-2xl sm:text-3xl font-bold text-blue-600 mb-2">tudo no azul</h1>
+            <p className="text-sm text-gray-600">Crie sua conta e comece a organizar suas finanças hoje mesmo.</p>
+          </div>
+          
+          <form onSubmit={submit} className="grid gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Nome (opcional)</label>
               <input 
-                className="w-full border border-gray-600 bg-gray-700 text-white rounded pl-10 pr-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 placeholder-gray-400" 
-                value={email} 
-                onChange={e => setEmail(e.target.value)} 
-                type="email" 
-                placeholder="seu@email.com" 
-                required 
+                className="w-full border border-gray-300 bg-white text-gray-900 rounded-lg px-3 py-2.5 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400" 
+                value={name} 
+                onChange={e => setName(e.target.value)} 
+                type="text" 
+                placeholder="Seu nome" 
               />
             </div>
-            <label className="text-xs sm:text-sm text-gray-300">Senha</label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="10" width="12" height="10" rx="2" stroke="#9ca3af" strokeWidth="1.5"/><path d="M9 10V7a3 3 0 0 1 6 0v3" stroke="#9ca3af" strokeWidth="1.5"/></svg>
-              </span>
-              <input 
-                className="w-full border border-gray-600 bg-gray-700 text-white rounded pl-10 pr-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 placeholder-gray-400" 
-                value={password} 
-                onChange={e => setPassword(e.target.value)} 
-                type="password" 
-                placeholder="Mínimo 6 caracteres" 
-                required 
-              />
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16v12H4V6z" stroke="#6b7280" strokeWidth="1.5"/><path d="M4 7l8 6 8-6" stroke="#6b7280" strokeWidth="1.5"/></svg>
+                </span>
+                <input 
+                  className="w-full border border-gray-300 bg-white text-gray-900 rounded-lg pl-10 pr-3 py-2.5 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400" 
+                  value={email} 
+                  onChange={e => setEmail(e.target.value)} 
+                  type="email" 
+                  placeholder="seu@email.com" 
+                  required 
+                />
+              </div>
             </div>
-            <label className="text-xs sm:text-sm text-gray-300">Confirmar Senha</label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="10" width="12" height="10" rx="2" stroke="#9ca3af" strokeWidth="1.5"/><path d="M9 10V7a3 3 0 0 1 6 0v3" stroke="#9ca3af" strokeWidth="1.5"/></svg>
-              </span>
-              <input 
-                className="w-full border border-gray-600 bg-gray-700 text-white rounded pl-10 pr-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 placeholder-gray-400" 
-                value={confirmPassword} 
-                onChange={e => setConfirmPassword(e.target.value)} 
-                type="password" 
-                placeholder="Confirme sua senha" 
-                required 
-              />
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="10" width="12" height="10" rx="2" stroke="#6b7280" strokeWidth="1.5"/><path d="M9 10V7a3 3 0 0 1 6 0v3" stroke="#6b7280" strokeWidth="1.5"/></svg>
+                </span>
+                <input 
+                  className="w-full border border-gray-300 bg-white text-gray-900 rounded-lg pl-10 pr-3 py-2.5 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400" 
+                  value={password} 
+                  onChange={e => setPassword(e.target.value)} 
+                  type="password" 
+                  placeholder="Mínimo 6 caracteres" 
+                  required 
+                />
+              </div>
             </div>
-            {error && <div className="text-red-400 text-xs sm:text-sm">{error}</div>}
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Confirmar Senha</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="10" width="12" height="10" rx="2" stroke="#6b7280" strokeWidth="1.5"/><path d="M9 10V7a3 3 0 0 1 6 0v3" stroke="#6b7280" strokeWidth="1.5"/></svg>
+                </span>
+                <input 
+                  className="w-full border border-gray-300 bg-white text-gray-900 rounded-lg pl-10 pr-3 py-2.5 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400" 
+                  value={confirmPassword} 
+                  onChange={e => setConfirmPassword(e.target.value)} 
+                  type="password" 
+                  placeholder="Confirme sua senha" 
+                  required 
+                />
+              </div>
+            </div>
+            
+            {error && <div className="text-red-600 text-xs sm:text-sm bg-red-50 border border-red-200 rounded-lg p-2">{error}</div>}
+            
             <button 
               type="submit"
               disabled={loading}
-              className="mt-2 w-full bg-green-600 text-white rounded px-3 py-2 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base transition-colors"
+              className="mt-2 w-full bg-blue-600 text-white rounded-lg px-3 py-2.5 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base transition-colors font-medium shadow-sm"
             >
               {loading ? 'Cadastrando...' : 'Cadastrar'}
             </button>
-            <div className="text-xs text-gray-400">Já tem conta? <Link to="/login" className="text-green-400 hover:text-green-300">Faça login</Link></div>
+            
+            <div className="text-center text-xs text-gray-600">
+              Já tem conta? <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">Faça login</Link>
+            </div>
           </form>
-        </div>
-        <div className="relative hidden md:block">
-          <img src={hero} alt="Finanças" className="h-full w-full object-cover" />
         </div>
       </div>
     </div>

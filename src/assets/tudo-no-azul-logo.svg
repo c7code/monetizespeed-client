@@ -1,0 +1,15 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Balão de fala externo (outline azul) -->
+  <path d="M 30 50 Q 30 30 50 30 L 120 30 Q 140 30 140 50 L 140 120 Q 140 140 120 140 L 80 140 L 60 160 L 60 140 L 50 140 Q 30 140 30 120 Z" 
+        fill="none" 
+        stroke="#3B82F6" 
+        stroke-width="4"/>
+  
+  <!-- Círculo interno azul sólido -->
+  <circle cx="85" cy="85" r="50" fill="#2563EB"/>
+  
+  <!-- Texto "tudo no azul" -->
+  <text x="85" y="75" font-family="Arial, sans-serif" font-size="14" font-weight="normal" fill="white" text-anchor="middle">tudo</text>
+  <text x="95" y="65" font-family="Arial, sans-serif" font-size="10" font-weight="normal" fill="white" text-anchor="middle">no</text>
+  <text x="85" y="100" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="white" text-anchor="middle">azul</text>
+</svg>

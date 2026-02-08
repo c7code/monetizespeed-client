@@ -107,7 +107,7 @@ export default function Reports() {
       <div className="flex justify-end">
         <button
           onClick={generatePDF}
-          className="bg-green-600 text-white rounded px-4 py-2 hover:bg-green-700 transition-colors text-sm md:text-base font-medium shadow-sm"
+          className="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700 transition-colors text-sm md:text-base font-medium shadow-sm"
         >
           📥 Baixar PDF
         </button>
@@ -117,7 +117,7 @@ export default function Reports() {
         <ul className="space-y-2">
           {byCategory.map(([cat, val]) => (
             <li key={cat} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0">
-              <span className="px-2 py-1 rounded-full text-xs sm:text-sm bg-green-100 text-green-700 inline-block w-fit">{cat}</span>
+              <span className="px-2 py-1 rounded-full text-xs sm:text-sm bg-blue-100 text-blue-700 inline-block w-fit">{cat}</span>
               <span className="font-medium text-sm sm:text-base">R$ {val.toFixed(2)}</span>
             </li>
           ))}

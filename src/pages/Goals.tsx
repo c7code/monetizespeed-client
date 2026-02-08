@@ -5,18 +5,18 @@ import ProgressBar from '../components/ProgressBar'
 export default function Goals() {
   const { goals, addGoal, updateGoal, deleteGoal } = useData()
   const [name, setName] = useState('')
-  const [target, setTarget] = useState<number>(0)
-  const [saved, setSaved] = useState<number>(0)
+  const [target, setTarget] = useState<number | string>(0)
+  const [saved, setSaved] = useState<number | string>(0)
   const [msg, setMsg] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
-  const [editTarget, setEditTarget] = useState<number>(0)
-  const [editSaved, setEditSaved] = useState<number>(0)
+  const [editTarget, setEditTarget] = useState<number | string>(0)
+  const [editSaved, setEditSaved] = useState<number | string>(0)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (name.trim() && target > 0) {
-      await addGoal({ name: name.trim(), target, saved: saved || 0 })
+    if (name.trim() && Number(target) > 0) {
+      await addGoal({ name: name.trim(), target: Number(target), saved: Number(saved) || 0 })
       setName('')
       setTarget(0)
       setSaved(0)
@@ -36,8 +36,8 @@ export default function Goals() {
   }
 
   async function handleSaveEdit(id: string) {
-    if (editName.trim() && editTarget > 0) {
-      await updateGoal(id, { name: editName.trim(), target: editTarget, saved: editSaved || 0 })
+    if (editName.trim() && Number(editTarget) > 0) {
+      await updateGoal(id, { name: editName.trim(), target: Number(editTarget), saved: Number(editSaved) || 0 })
       setEditingId(null)
       setMsg('Meta atualizada com sucesso!')
       setTimeout(() => setMsg(''), 3000)
@@ -71,8 +71,8 @@ export default function Goals() {
             className="border rounded px-2 py-1 text-sm md:text-base"
             type="number"
             step="0.01"
-            value={target || ''}
-            onChange={e => setTarget(Number(e.target.value))}
+            value={target}
+            onChange={e => setTarget(e.target.value)}
             placeholder="Meta (R$)"
             min="0.01"
             required
@@ -81,20 +81,20 @@ export default function Goals() {
             className="border rounded px-2 py-1 text-sm md:text-base"
             type="number"
             step="0.01"
-            value={saved || ''}
-            onChange={e => setSaved(Number(e.target.value))}
+            value={saved}
+            onChange={e => setSaved(e.target.value)}
             placeholder="Valor já guardado (R$)"
             min="0"
           />
           <button
             type="submit"
-            className="bg-green-600 text-white rounded px-3 py-1 md:py-2 hover:bg-green-700 text-sm md:text-base transition-colors"
+            className="bg-blue-600 text-white rounded px-3 py-1 md:py-2 hover:bg-blue-700 text-sm md:text-base transition-colors"
           >
             Adicionar
           </button>
         </div>
         {msg && (
-          <div className={`text-xs sm:text-sm mt-2 ${msg.includes('sucesso') ? 'text-green-600' : 'text-red-600'}`}>
+          <div className={`text-xs sm:text-sm mt-2 ${msg.includes('sucesso') ? 'text-blue-600' : 'text-red-600'}`}>
             {msg}
           </div>
         )}
@@ -116,8 +116,8 @@ export default function Goals() {
                     className="border border-gray-300 rounded px-2 py-1 text-xs sm:text-sm"
                     type="number"
                     step="0.01"
-                    value={editTarget || ''}
-                    onChange={e => setEditTarget(Number(e.target.value))}
+                    value={editTarget}
+                    onChange={e => setEditTarget(e.target.value)}
                     placeholder="Meta (R$)"
                     min="0.01"
                   />
@@ -125,8 +125,8 @@ export default function Goals() {
                     className="border border-gray-300 rounded px-2 py-1 text-xs sm:text-sm"
                     type="number"
                     step="0.01"
-                    value={editSaved || ''}
-                    onChange={e => setEditSaved(Number(e.target.value))}
+                    value={editSaved}
+                    onChange={e => setEditSaved(e.target.value)}
                     placeholder="Guardado (R$)"
                     min="0"
                   />
@@ -134,7 +134,7 @@ export default function Goals() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleSaveEdit(g.id)}
-                    className="flex-1 bg-green-600 text-white rounded px-2 py-1 hover:bg-green-700 text-xs sm:text-sm transition-colors"
+                    className="flex-1 bg-blue-600 text-white rounded px-2 py-1 hover:bg-blue-700 text-xs sm:text-sm transition-colors"
                   >
                     Salvar
                   </button>
@@ -154,7 +154,7 @@ export default function Goals() {
                     <div className="text-xs sm:text-sm text-gray-700">R$ {g.saved.toFixed(2)} / R$ {g.target.toFixed(2)}</div>
                     <button
                       onClick={() => handleEdit(g)}
-                      className="text-gray-600 hover:text-green-600 transition-colors"
+                      className="text-gray-600 hover:text-blue-600 transition-colors"
                       title="Editar meta"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

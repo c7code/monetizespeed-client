@@ -11,6 +11,12 @@ import Budgets from './pages/Budgets'
 import Reports from './pages/Reports'
 import Goals from './pages/Goals'
 import BankImport from './pages/BankImport'
+import Chat from './pages/Chat'
+import CreditCards from './pages/CreditCards'
+import Wallets from './pages/Wallets'
+import Streamings from './pages/Streamings'
+import Bills from './pages/Bills'
+import Receivables from './pages/Receivables'
 import { DataProvider } from './store/data'
 import { useAuth, AuthProvider } from './store/auth'
 
@@ -36,6 +42,12 @@ root.render(
               <Route path="reports" element={<Reports />} />
               <Route path="goals" element={<Goals />} />
               <Route path="bank-import" element={<BankImport />} />
+              <Route path="chat" element={<Chat />} />
+              <Route path="credit-cards" element={<CreditCards />} />
+              <Route path="wallets" element={<Wallets />} />
+              <Route path="streamings" element={<Streamings />} />
+              <Route path="bills" element={<Bills />} />
+              <Route path="receivables" element={<Receivables />} />
             </Route>
           </Routes>
         </BrowserRouter>
