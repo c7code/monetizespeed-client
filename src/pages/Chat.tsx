@@ -283,10 +283,10 @@ export default function Chat({ showHeader = true }: ChatProps) {
   return (
     <div className={`flex flex-col ${showHeader ? 'h-[calc(100vh-120px)]' : 'h-full'}`}>
       {showHeader && (
-        <div className="p-3 md:p-4 border-b border-gray-200 flex justify-between items-center">
+        <div className="p-3 md:p-4 border-b border-dark-border flex justify-between items-center">
           <div>
             <h2 className="text-lg md:text-xl font-semibold mb-1">Chat de Gastos</h2>
-            <p className="text-xs md:text-sm text-gray-600">
+            <p className="text-xs md:text-sm text-gray-400">
               Digite ou fale seus gastos e receitas.
             </p>
           </div>
@@ -302,8 +302,8 @@ export default function Chat({ showHeader = true }: ChatProps) {
               className={`max-w-[80%] md:max-w-[70%] rounded-lg px-3 md:px-4 py-2 ${msg.sender === 'user'
                 ? 'bg-blue-600 text-white'
                 : msg.transactionCreated
-                  ? 'bg-blue-50 border border-blue-200 text-gray-800'
-                  : 'bg-gray-100 text-gray-800'
+                  ? 'bg-blue-50 border border-blue-200 text-gray-200'
+                  : 'bg-dark-hover text-gray-200'
                 }`}
             >
               <p className="text-sm md:text-base whitespace-pre-wrap">{msg.text}</p>
@@ -315,7 +315,7 @@ export default function Chat({ showHeader = true }: ChatProps) {
         ))}
         {isProcessing && (
           <div className="flex justify-start">
-            <div className="bg-gray-100 rounded-lg px-4 py-2">
+            <div className="bg-dark-hover rounded-lg px-4 py-2">
               <div className="flex gap-1">
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
@@ -327,14 +327,14 @@ export default function Chat({ showHeader = true }: ChatProps) {
         <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={handleSend} className="p-3 md:p-4 border-t border-gray-200">
+      <form onSubmit={handleSend} className="p-3 md:p-4 border-t border-dark-border">
         <div className="flex gap-2 items-center">
           <input
             type="text"
             value={input}
             onChange={e => setInput(e.target.value)}
             placeholder="Ex: Gastei R$ 50 com comida hoje"
-            className="flex-1 border border-gray-300 rounded-lg px-3 md:px-4 py-2 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="flex-1 border border-dark-border rounded-lg px-3 md:px-4 py-2 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             disabled={isProcessing}
           />
           <AudioRecorder onTranscriptionComplete={handleAudioData} />

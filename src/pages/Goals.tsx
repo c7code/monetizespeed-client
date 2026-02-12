@@ -55,7 +55,7 @@ export default function Goals() {
     <div className="grid gap-3 md:gap-4">
       <form
         onSubmit={handleSubmit}
-        className="rounded shadow p-3 md:p-4 border border-gray-200 bg-gray-50"
+        className="rounded shadow p-3 md:p-4 border border-dark-border bg-dark-surface"
       >
         <div className="text-base md:text-lg font-medium mb-3">Nova Meta</div>
         <div className="grid md:grid-cols-4 gap-3">
@@ -101,11 +101,11 @@ export default function Goals() {
       </form>
       <div className="grid md:grid-cols-2 gap-3 md:gap-4">
         {goals.map(g => (
-          <div key={g.id} className="rounded shadow p-3 md:p-4 border border-gray-200 bg-gray-50">
+          <div key={g.id} className="rounded shadow p-3 md:p-4 border border-dark-border bg-dark-surface">
             {editingId === g.id ? (
               <div className="grid gap-3">
                 <input
-                  className="border border-gray-300 rounded px-2 py-1 text-sm md:text-base"
+                  className="border border-dark-border rounded px-2 py-1 text-sm md:text-base"
                   type="text"
                   value={editName}
                   onChange={e => setEditName(e.target.value)}
@@ -113,7 +113,7 @@ export default function Goals() {
                 />
                 <div className="grid grid-cols-2 gap-2">
                   <input
-                    className="border border-gray-300 rounded px-2 py-1 text-xs sm:text-sm"
+                    className="border border-dark-border rounded px-2 py-1 text-xs sm:text-sm"
                     type="number"
                     step="0.01"
                     value={editTarget}
@@ -122,7 +122,7 @@ export default function Goals() {
                     min="0.01"
                   />
                   <input
-                    className="border border-gray-300 rounded px-2 py-1 text-xs sm:text-sm"
+                    className="border border-dark-border rounded px-2 py-1 text-xs sm:text-sm"
                     type="number"
                     step="0.01"
                     value={editSaved}
@@ -140,7 +140,7 @@ export default function Goals() {
                   </button>
                   <button
                     onClick={handleCancelEdit}
-                    className="flex-1 bg-gray-500 text-white rounded px-2 py-1 hover:bg-gray-600 text-xs sm:text-sm transition-colors"
+                    className="flex-1 bg-dark-surface0 text-white rounded px-2 py-1 hover:bg-gray-600 text-xs sm:text-sm transition-colors"
                   >
                     Cancelar
                   </button>
@@ -151,10 +151,10 @@ export default function Goals() {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-2">
                   <div className="font-medium text-sm sm:text-base">{g.name}</div>
                   <div className="flex items-center gap-2">
-                    <div className="text-xs sm:text-sm text-gray-700">R$ {g.saved.toFixed(2)} / R$ {g.target.toFixed(2)}</div>
+                    <div className="text-xs sm:text-sm text-gray-300">R$ {g.saved.toFixed(2)} / R$ {g.target.toFixed(2)}</div>
                     <button
                       onClick={() => handleEdit(g)}
-                      className="text-gray-600 hover:text-blue-600 transition-colors"
+                      className="text-gray-400 hover:text-blue-600 transition-colors"
                       title="Editar meta"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -163,7 +163,7 @@ export default function Goals() {
                     </button>
                     <button
                       onClick={() => deleteGoal(g.id)}
-                      className="text-gray-600 hover:text-red-600 transition-colors"
+                      className="text-gray-400 hover:text-red-600 transition-colors"
                       title="Excluir meta"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

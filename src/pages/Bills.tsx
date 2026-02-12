@@ -141,9 +141,9 @@ export default function Bills() {
     // Render Helpers
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'paid': return 'text-green-600 bg-green-100 border-green-200'
-            case 'overdue': return 'text-red-600 bg-red-100 border-red-200'
-            default: return 'text-yellow-600 bg-yellow-100 border-yellow-200'
+            case 'paid': return 'text-green-400 bg-green-500/15 border-green-500/30'
+            case 'overdue': return 'text-red-400 bg-red-500/15 border-red-500/30'
+            default: return 'text-purple-400 bg-purple-500/15 border-purple-500/30'
         }
     }
 
@@ -159,12 +159,12 @@ export default function Bills() {
         <div className="space-y-6">
             <div className="flex justify-between items-center flex-wrap gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-800">Contas a Pagar</h1>
-                    <p className="text-gray-500">Gerencie seus compromissos financeiros</p>
+                    <h1 className="text-2xl font-bold text-white">Contas a Pagar</h1>
+                    <p className="text-gray-400 text-sm">Gerencie seus compromissos financeiros e evite atrasos.</p>
                 </div>
                 <div className="flex gap-2">
                     {/* Botão Exportar PDF (Simulado) */}
-                    <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                    <button className="flex items-center gap-2 px-4 py-2 bg-dark-card border border-dark-border rounded-lg text-gray-300 hover:bg-dark-surface">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
@@ -185,28 +185,27 @@ export default function Bills() {
 
             {/* Cards de Resumo */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <div className="text-sm font-medium text-gray-500 mb-1">Mês Selecionado</div>
-                    <div className="flex gap-2 mb-4">
+                <div className="bg-dark-card p-6 rounded-xl shadow-sm border border-dark-border">
+                    <div className="text-xs font-semibold tracking-wider text-gray-500 uppercase mb-2">Mês Selecionado</div>
+                    <div className="flex items-center gap-2 mb-4">
                         <select
                             value={selectedMonth}
                             onChange={e => setSelectedMonth(Number(e.target.value))}
-                            className="bg-gray-900 text-white rounded px-2 py-1 text-sm border-none focus:ring-0"
-                            style={{ backgroundColor: '#2D1B4E' }}
+                            className="bg-dark-surface text-white rounded-lg px-3 py-1.5 text-sm border border-dark-border focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                         >
                             {months.map((m, i) => <option key={i} value={i}>{m}</option>)}
                         </select>
                         <select
                             value={selectedYear}
                             onChange={e => setSelectedYear(Number(e.target.value))}
-                            className="bg-transparent text-gray-900 border border-gray-300 rounded px-2 py-1 text-sm"
+                            className="bg-dark-surface text-white border border-dark-border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                         >
                             {[2024, 2025, 2026, 2027].map(y => <option key={y} value={y}>{y}</option>)}
                         </select>
                     </div>
                     <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                            <span className="text-gray-600">Total:</span>
+                            <span className="text-gray-400">Total:</span>
                             <span className="font-bold">R$ {summary.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                         </div>
                         <div className="flex justify-between text-sm">
@@ -220,30 +219,30 @@ export default function Bills() {
                     </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <div className="text-sm font-medium text-gray-500 mb-2">Saldo Pendente (Mês)</div>
-                    <div className="text-3xl font-bold text-purple-600">
+                <div className="bg-dark-card p-6 rounded-xl shadow-sm border border-dark-border">
+                    <div className="text-xs font-semibold tracking-wider text-gray-500 uppercase mb-2">Saldo Pendente (Mês)</div>
+                    <div className="text-3xl font-bold text-purple-400">
                         R$ {summary.pending.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </div>
-                    <div className="text-sm text-gray-500 mt-1">
-                        {bills.filter(b => b.status === 'pending' && new Date(b.due_date).getMonth() === selectedMonth).length} conta(s)
+                    <div className="text-sm text-gray-500 mt-2">
+                        ● {bills.filter(b => b.status === 'pending' && new Date(b.due_date).getMonth() === selectedMonth).length} conta(s) em aberto
                     </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <div className="text-sm font-medium text-gray-500 mb-2">Atrasadas (Geral)</div>
-                    <div className="text-3xl font-bold text-red-500">
+                <div className="bg-dark-card p-6 rounded-xl shadow-sm border border-dark-border">
+                    <div className="text-xs font-semibold tracking-wider text-gray-500 uppercase mb-2">Atrasadas (Geral)</div>
+                    <div className="text-3xl font-bold text-red-400">
                         R$ {summary.overdue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </div>
-                    <div className="text-sm text-gray-500 mt-1">
-                        {bills.filter(b => b.status === 'overdue' && new Date(b.due_date).getMonth() === selectedMonth).length} conta(s) no mês
+                    <div className="text-sm text-gray-500 mt-2">
+                        ▲ {bills.filter(b => b.status === 'overdue' && new Date(b.due_date).getMonth() === selectedMonth).length} conta(s) no mês
                     </div>
                 </div>
             </div>
 
             {/* Filtros e Lista */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div className="p-4 border-b border-gray-200 space-y-4">
+            <div className="bg-dark-card rounded-xl shadow-sm border border-dark-border overflow-hidden">
+                <div className="p-4 border-b border-dark-border space-y-4">
                     <div className="flex flex-wrap gap-4">
                         <div className="flex-1 min-w-[200px]">
                             <div className="relative">
@@ -257,7 +256,7 @@ export default function Bills() {
                                     placeholder="Buscar por descrição, fornecedor ou cliente..."
                                     value={filterText}
                                     onChange={e => setFilterText(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-2 bg-gray-900/5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    className="w-full pl-10 pr-4 py-2.5 bg-dark-surface text-gray-200 border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-500"
                                 />
                             </div>
                         </div>
@@ -266,7 +265,7 @@ export default function Bills() {
                             <select
                                 value={filterCategory}
                                 onChange={e => setFilterCategory(e.target.value)}
-                                className="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                className="w-full px-4 py-2.5 bg-dark-surface text-gray-200 border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                             >
                                 <option value="">Todas as Categorias</option>
                                 {presetCategories.map(c => <option key={c} value={c}>{c}</option>)}
@@ -274,22 +273,22 @@ export default function Bills() {
                         </div>
 
                         <div className="w-full sm:w-auto">
-                            <div className="flex bg-gray-100 p-1 rounded-lg">
+                            <div className="flex bg-dark-hover p-1 rounded-lg">
                                 <button
                                     onClick={() => setFilterStatus('all')}
-                                    className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${filterStatus === 'all' ? 'bg-purple-600 text-white shadow' : 'text-gray-600 hover:text-gray-900'}`}
+                                    className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${filterStatus === 'all' ? 'bg-purple-600 text-white shadow' : 'text-gray-400 hover:text-gray-200'}`}
                                 >Todas</button>
                                 <button
                                     onClick={() => setFilterStatus('pending')}
-                                    className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${filterStatus === 'pending' ? 'bg-yellow-500 text-white shadow' : 'text-gray-600 hover:text-gray-900'}`}
+                                    className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${filterStatus === 'pending' ? 'bg-yellow-500 text-white shadow' : 'text-gray-400 hover:text-gray-200'}`}
                                 >A Vencer</button>
                                 <button
                                     onClick={() => setFilterStatus('overdue')}
-                                    className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${filterStatus === 'overdue' ? 'bg-red-500 text-white shadow' : 'text-gray-600 hover:text-gray-900'}`}
+                                    className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${filterStatus === 'overdue' ? 'bg-red-500 text-white shadow' : 'text-gray-400 hover:text-gray-200'}`}
                                 >Atrasadas</button>
                                 <button
                                     onClick={() => setFilterStatus('paid')}
-                                    className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${filterStatus === 'paid' ? 'bg-green-500 text-white shadow' : 'text-gray-600 hover:text-gray-900'}`}
+                                    className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${filterStatus === 'paid' ? 'bg-green-500 text-white shadow' : 'text-gray-400 hover:text-gray-200'}`}
                                 >Pagas</button>
                             </div>
                         </div>
@@ -300,7 +299,7 @@ export default function Bills() {
                 <div className="overflow-x-auto">
                     {filteredBills.length === 0 ? (
                         <div className="p-12 text-center text-gray-500">
-                            <div className="inline-block p-4 rounded-full bg-gray-100 mb-4">
+                            <div className="inline-block p-4 rounded-full bg-dark-hover mb-4">
                                 <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                 </svg>
@@ -311,7 +310,7 @@ export default function Bills() {
                     ) : (
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="bg-gray-50 text-gray-600 text-sm">
+                                <tr className="bg-dark-surface text-gray-400 text-sm">
                                     <th className="p-4 font-medium">Descrição</th>
                                     <th className="p-4 font-medium">Vencimento</th>
                                     <th className="p-4 font-medium">Valor</th>
@@ -320,17 +319,17 @@ export default function Bills() {
                                     <th className="p-4 font-medium text-right">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-100">
+                            <tbody className="divide-y divide-dark-border">
                                 {filteredBills.map(bill => (
-                                    <tr key={bill.id} className="hover:bg-gray-50 group">
+                                    <tr key={bill.id} className="hover:bg-dark-surface group">
                                         <td className="p-4">
-                                            <div className="font-medium text-gray-900">{bill.description}</div>
+                                            <div className="font-medium text-gray-100">{bill.description}</div>
                                             <div className="text-xs text-gray-500">{bill.category}</div>
                                         </td>
-                                        <td className="p-4 text-gray-600">
+                                        <td className="p-4 text-gray-400">
                                             {new Date(bill.due_date).toLocaleDateString()}
                                         </td>
-                                        <td className="p-4 font-medium text-gray-900">
+                                        <td className="p-4 font-semibold text-gray-100">
                                             R$ {bill.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                         </td>
                                         <td className="p-4">
@@ -338,7 +337,7 @@ export default function Bills() {
                                                 {getStatusLabel(bill.status)}
                                             </span>
                                         </td>
-                                        <td className="p-4 text-gray-600 text-sm">
+                                        <td className="p-4 text-gray-400 text-sm">
                                             {bill.supplier_name || '-'}
                                         </td>
                                         <td className="p-4 text-right">
@@ -346,7 +345,7 @@ export default function Bills() {
                                                 {bill.status !== 'paid' && (
                                                     <button
                                                         onClick={() => handlePay(bill)}
-                                                        className="p-1 text-green-600 hover:bg-green-50 rounded"
+                                                        className="p-1.5 text-green-400 hover:bg-green-500/10 rounded-lg"
                                                         title="Marcar como Pago"
                                                     >
                                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -356,7 +355,7 @@ export default function Bills() {
                                                 )}
                                                 <button
                                                     onClick={() => handleOpenModal(bill)}
-                                                    className="p-1 text-blue-600 hover:bg-blue-50 rounded"
+                                                    className="p-1.5 text-blue-400 hover:bg-blue-500/10 rounded-lg"
                                                     title="Editar"
                                                 >
                                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -365,7 +364,7 @@ export default function Bills() {
                                                 </button>
                                                 <button
                                                     onClick={() => handleDelete(bill.id)}
-                                                    className="p-1 text-red-600 hover:bg-red-50 rounded"
+                                                    className="p-1.5 text-red-400 hover:bg-red-500/10 rounded-lg"
                                                     title="Excluir"
                                                 >
                                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -585,7 +584,7 @@ export default function Bills() {
                                 <button
                                     type="button"
                                     onClick={() => setIsModalOpen(false)}
-                                    className="px-4 py-2 text-sm font-medium text-gray-300 bg-white border border-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-colors"
+                                    className="px-4 py-2 text-sm font-medium text-gray-300 bg-dark-surface border border-dark-border rounded-lg hover:bg-dark-hover hover:text-white transition-colors"
                                 >
                                     Cancelar
                                 </button>

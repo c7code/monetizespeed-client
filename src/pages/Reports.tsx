@@ -112,7 +112,7 @@ export default function Reports() {
           📥 Baixar PDF
         </button>
       </div>
-      <div className="rounded shadow p-3 md:p-4 border border-gray-200 bg-gray-50">
+      <div className="rounded shadow p-3 md:p-4 border border-dark-border bg-dark-surface">
         <div className="text-base md:text-lg font-medium mb-3">Resumo por Categoria</div>
         <ul className="space-y-2">
           {byCategory.map(([cat, val]) => (
@@ -123,12 +123,12 @@ export default function Reports() {
           ))}
         </ul>
       </div>
-      <div className="rounded shadow p-3 md:p-4 border border-gray-200 bg-gray-50">
+      <div className="rounded shadow p-3 md:p-4 border border-dark-border bg-dark-surface">
         <div className="text-base md:text-lg font-medium mb-3">Top 5 Despesas</div>
         <ul className="space-y-2">
           {top5.map(([cat, val]) => (
             <li key={cat} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0">
-              <span className="px-2 py-1 rounded-full text-xs sm:text-sm bg-gray-200 text-gray-700 inline-block w-fit">{cat}</span>
+              <span className="px-2 py-1 rounded-full text-xs sm:text-sm bg-dark-surface text-gray-300 inline-block w-fit">{cat}</span>
               <span className="font-medium text-sm sm:text-base">R$ {val.toFixed(2)}</span>
             </li>
           ))}

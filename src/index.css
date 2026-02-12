@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,15 +8,102 @@
   * {
     box-sizing: border-box;
   }
-  
+
   html {
     overflow-x: hidden;
   }
-  
+
   body {
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: #0b1120;
+    color: #e2e8f0;
   }
 }
 
+@layer components {
+  /* Gradient balance card */
+  .gradient-card {
+    background: linear-gradient(135deg, #6366f1 0%, #3b82f6 50%, #2563eb 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .gradient-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -30%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  /* Dark card style */
+  .dark-card {
+    background-color: #1e293b;
+    border: 1px solid #2d3a4f;
+    border-radius: 1rem;
+    transition: all 0.2s ease;
+  }
+
+  .dark-card:hover {
+    border-color: #3d4a5f;
+  }
+
+  /* Progress bar animation */
+  .progress-bar {
+    transition: width 0.8s ease-in-out;
+  }
+
+  /* Sidebar nav item */
+  .nav-item {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium;
+  }
+
+  .nav-item-active {
+    @apply bg-blue-600 text-white shadow-lg shadow-blue-600/30;
+  }
+
+  .nav-item-inactive {
+    @apply text-slate-400 hover:bg-slate-800 hover:text-slate-200;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #0f172a;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+  }
+
+  /* Form inputs for dark theme */
+  .dark-input {
+    @apply bg-dark-surface border border-dark-border rounded-lg px-3 py-2 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all;
+  }
+
+  .dark-select {
+    @apply bg-dark-surface border border-dark-border rounded-lg px-3 py-2 text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all;
+  }
+
+  .dark-btn-primary {
+    @apply bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-2 rounded-lg transition-all shadow-lg shadow-blue-600/20;
+  }
+
+  .dark-btn-secondary {
+    @apply bg-dark-surface hover:bg-dark-hover text-gray-300 border border-dark-border font-medium px-4 py-2 rounded-lg transition-all;
+  }
+}

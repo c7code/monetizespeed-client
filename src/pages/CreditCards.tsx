@@ -1,41 +1,14 @@
 import { useState } from 'react'
 import { useData } from '../store/data'
 
-// Mapeamento de bancos para cores
-const bankColors: Record<string, { bg: string; border: string; text: string }> = {
-  nubank: { bg: 'bg-purple-50', border: 'border-purple-500', text: 'text-purple-700' },
-  itau: { bg: 'bg-orange-50', border: 'border-orange-500', text: 'text-orange-700' },
-  itaú: { bg: 'bg-orange-50', border: 'border-orange-500', text: 'text-orange-700' },
-  bradesco: { bg: 'bg-red-50', border: 'border-red-500', text: 'text-red-700' },
-  banco_do_brasil: { bg: 'bg-yellow-50', border: 'border-yellow-500', text: 'text-yellow-700' },
-  bb: { bg: 'bg-yellow-50', border: 'border-yellow-500', text: 'text-yellow-700' },
-  santander: { bg: 'bg-red-100', border: 'border-red-600', text: 'text-red-800' },
-  caixa: { bg: 'bg-blue-50', border: 'border-blue-500', text: 'text-blue-700' },
-  caixa_economica: { bg: 'bg-blue-50', border: 'border-blue-500', text: 'text-blue-700' },
-  inter: { bg: 'bg-orange-100', border: 'border-orange-600', text: 'text-orange-800' },
-  banco_inter: { bg: 'bg-orange-100', border: 'border-orange-600', text: 'text-orange-800' },
-  c6: { bg: 'bg-gray-900', border: 'border-gray-700', text: 'text-gray-100' },
-  c6_bank: { bg: 'bg-gray-900', border: 'border-gray-700', text: 'text-gray-100' },
-  next: { bg: 'bg-blue-100', border: 'border-blue-600', text: 'text-blue-800' },
-  neon: { bg: 'bg-cyan-50', border: 'border-cyan-500', text: 'text-cyan-700' },
-  picpay: { bg: 'bg-blue-100', border: 'border-blue-600', text: 'text-blue-800' },
-  pagbank: { bg: 'bg-blue-50', border: 'border-blue-500', text: 'text-blue-700' },
-  will: { bg: 'bg-indigo-50', border: 'border-indigo-500', text: 'text-indigo-700' },
-  default: { bg: 'bg-gray-50', border: 'border-gray-300', text: 'text-gray-700' }
-}
-
-function getBankColor(cardName: string) {
-  const nameLower = cardName.toLowerCase().trim()
-
-  // Verificar correspondência exata ou parcial
-  for (const [bank, colors] of Object.entries(bankColors)) {
-    if (bank !== 'default' && nameLower.includes(bank)) {
-      return colors
-    }
-  }
-
-  return bankColors.default
-}
+const cardAccentColors = [
+  { name: 'text-red-400', bar: 'bg-red-500', spent: 'text-red-400' },
+  { name: 'text-blue-400', bar: 'bg-blue-500', spent: 'text-blue-400' },
+  { name: 'text-orange-400', bar: 'bg-orange-500', spent: 'text-orange-400' },
+  { name: 'text-purple-400', bar: 'bg-purple-500', spent: 'text-purple-400' },
+  { name: 'text-green-400', bar: 'bg-green-500', spent: 'text-green-400' },
+  { name: 'text-cyan-400', bar: 'bg-cyan-500', spent: 'text-cyan-400' },
+]
 
 export default function CreditCards() {
   const { creditCards, addCreditCard, updateCreditCard, deleteCreditCard } = useData()
@@ -71,14 +44,6 @@ export default function CreditCards() {
 
     setIsSubmitting(true)
     try {
-      console.log('Chamando addCreditCard com dados:', {
-        name: name.trim(),
-        limit_amount: Number(limitAmount),
-        total_spent: Number(totalSpent) || 0,
-        closing_day: closingDay ? Number(closingDay) : null,
-        due_day: dueDay ? Number(dueDay) : null
-      })
-
       await addCreditCard({
         name: name.trim(),
         limit_amount: Number(limitAmount),
@@ -87,7 +52,6 @@ export default function CreditCards() {
         due_day: dueDay ? Number(dueDay) : null
       })
 
-      console.log('Cartão adicionado com sucesso!')
       setName('')
       setLimitAmount(0)
       setTotalSpent(0)
@@ -129,240 +93,298 @@ export default function CreditCards() {
 
   function getUsagePercentage(card: typeof creditCards[0]) {
     if (card.limit_amount === 0) return 0
-    return (card.total_spent / card.limit_amount) * 100
+    return Math.min((card.total_spent / card.limit_amount) * 100, 100)
   }
 
   return (
-    <div className="grid gap-4 md:gap-6">
-      <form onSubmit={submit} className="bg-white rounded shadow p-3 md:p-4 border border-gray-200">
-        <div className="text-base md:text-lg font-medium mb-3">Novo Cartão de Crédito</div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-white">Cartões de Crédito</h1>
+          <p className="text-gray-400 text-sm mt-1">Gerencie seus limites e faturas em um só lugar.</p>
+        </div>
+        <button className="p-2.5 bg-dark-card border border-dark-border rounded-xl text-gray-400 hover:text-gray-200 hover:bg-dark-hover transition-colors">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+        </button>
+      </div>
+
+      {/* New Card Form */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span className="text-sm font-semibold text-gray-200">Novo Cartão de Crédito</span>
+        </div>
+
         {error && (
-          <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+          <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
             {error}
           </div>
         )}
-        <div className="grid gap-3">
-          <input
-            className="border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm md:text-base"
-            type="text"
-            value={name}
-            onChange={e => setName(e.target.value)}
-            placeholder="Nome do cartão (ex: Nubank, Itaú)"
-            required
-          />
-          <div className="grid sm:grid-cols-2 gap-3">
-            <input
-              className="border border-gray-300 rounded px-2 py-1 text-sm md:text-base w-full md:w-auto"
-              type="number"
-              step="0.01"
-              value={limitAmount}
-              onChange={e => setLimitAmount(e.target.value)}
-              placeholder="Limite (R$)"
-              required
-            />
-            <input
-              className="border border-gray-300 rounded px-2 py-1 text-sm md:text-base w-full md:w-auto"
-              type="number"
-              step="0.01"
-              value={totalSpent}
-              onChange={e => setTotalSpent(e.target.value)}
-              placeholder="Gasto total (R$)"
-            />
-            <input
-              className="border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm md:text-base"
-              type="number"
-              min="1"
-              max="31"
-              value={closingDay}
-              onChange={e => setClosingDay(e.target.value ? Number(e.target.value) : '')}
-              placeholder="Dia de fechamento (1-31)"
-            />
-            <input
-              className="border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm md:text-base"
-              type="number"
-              min="1"
-              max="31"
-              value={dueDay}
-              onChange={e => setDueDay(e.target.value ? Number(e.target.value) : '')}
-              placeholder="Dia de vencimento (1-31)"
-            />
+
+        <form onSubmit={submit} className="bg-dark-card border border-dark-border rounded-2xl p-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+            <div>
+              <label className="block text-xs font-semibold tracking-wider text-gray-500 uppercase mb-1.5">Nome do Cartão</label>
+              <input
+                className="w-full bg-dark-surface border border-dark-border rounded-lg px-3 py-2.5 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                type="text"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="Ex: Nubank, Itaú Personalité"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold tracking-wider text-gray-500 uppercase mb-1.5">Limite Total (R$)</label>
+              <input
+                className="w-full bg-dark-surface border border-dark-border rounded-lg px-3 py-2.5 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                type="number"
+                step="0.01"
+                value={limitAmount}
+                onChange={e => setLimitAmount(e.target.value)}
+                placeholder="0,00"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold tracking-wider text-gray-500 uppercase mb-1.5">Gasto Atual (R$)</label>
+              <input
+                className="w-full bg-dark-surface border border-dark-border rounded-lg px-3 py-2.5 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                type="number"
+                step="0.01"
+                value={totalSpent}
+                onChange={e => setTotalSpent(e.target.value)}
+                placeholder="0,00"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs font-semibold tracking-wider text-gray-500 uppercase mb-1.5">Fechamento</label>
+                <input
+                  className="w-full bg-dark-surface border border-dark-border rounded-lg px-3 py-2.5 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  type="number"
+                  min="1"
+                  max="31"
+                  value={closingDay}
+                  onChange={e => setClosingDay(e.target.value ? Number(e.target.value) : '')}
+                  placeholder="Dia"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold tracking-wider text-gray-500 uppercase mb-1.5">Vencimento</label>
+                <input
+                  className="w-full bg-dark-surface border border-dark-border rounded-lg px-3 py-2.5 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  type="number"
+                  min="1"
+                  max="31"
+                  value={dueDay}
+                  onChange={e => setDueDay(e.target.value ? Number(e.target.value) : '')}
+                  placeholder="Dia"
+                />
+              </div>
+            </div>
+            <div>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white rounded-xl px-4 py-2.5 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-semibold transition-colors shadow-lg shadow-blue-600/20"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                {isSubmitting ? 'Adicionando...' : 'Adicionar Cartão'}
+              </button>
+            </div>
           </div>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="bg-blue-600 text-white rounded px-3 py-2 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base transition-colors w-full sm:w-auto"
-          >
-            {isSubmitting ? 'Adicionando...' : 'Adicionar Cartão'}
-          </button>
-        </div>
-      </form>
+        </form>
+      </div>
 
-      <div className="bg-white rounded shadow border border-gray-200">
-        <div className="p-3 md:p-4 border-b border-gray-200">
-          <h2 className="text-lg md:text-xl font-semibold mb-1">Meus Cartões</h2>
-          <p className="text-xs md:text-sm text-gray-600">Gerencie seus cartões de crédito</p>
+      {/* Cards Section */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+          </svg>
+          <h2 className="text-lg font-bold text-white">Meus Cartões</h2>
         </div>
 
-        <div className="p-3 md:p-4">
-          {creditCards.length === 0 ? (
-            <p className="text-gray-500 text-sm md:text-base text-center py-8">
-              Nenhum cartão cadastrado. Adicione seu primeiro cartão acima.
-            </p>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {creditCards.map(card => {
-                const bankColor = getBankColor(card.name)
-                return (
-                  <div
-                    key={card.id}
-                    className={`border-2 ${bankColor.border} ${bankColor.bg} rounded-lg p-4 hover:shadow-lg transition-all`}
-                  >
-                    {editingId === card.id ? (
-                      <div className="space-y-3">
+        {creditCards.length === 0 ? (
+          <div className="bg-dark-card border-2 border-dashed border-dark-border rounded-2xl p-12 text-center">
+            <div className="w-16 h-16 rounded-full bg-dark-surface mx-auto flex items-center justify-center mb-4">
+              <svg className="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              </svg>
+            </div>
+            <p className="text-gray-400 font-medium">Nenhum cartão cadastrado</p>
+            <p className="text-sm text-gray-500 mt-1">Adicione seu primeiro cartão de crédito acima.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {creditCards.map((card, idx) => {
+              const color = cardAccentColors[idx % cardAccentColors.length]
+              const available = getAvailableLimit(card)
+              const usage = getUsagePercentage(card)
+
+              return (
+                <div
+                  key={card.id}
+                  className="bg-dark-card border border-dark-border rounded-2xl p-5 hover:border-gray-600 transition-all group relative"
+                >
+                  {editingId === card.id ? (
+                    <div className="space-y-3">
+                      <input
+                        className="w-full bg-dark-surface border border-dark-border rounded-lg px-3 py-2 text-sm text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        type="text"
+                        value={editName}
+                        onChange={e => setEditName(e.target.value)}
+                        placeholder="Nome do cartão"
+                      />
+                      <div className="grid grid-cols-2 gap-2">
                         <input
-                          className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
-                          type="text"
-                          value={editName}
-                          onChange={e => setEditName(e.target.value)}
-                          placeholder="Nome do cartão"
+                          className="bg-dark-surface border border-dark-border rounded-lg px-3 py-2 text-sm text-gray-200 focus:ring-2 focus:ring-blue-500"
+                          type="number"
+                          step="0.01"
+                          value={editLimitAmount}
+                          onChange={e => setEditLimitAmount(e.target.value)}
+                          placeholder="Limite"
                         />
-                        <div className="grid grid-cols-2 gap-2">
-                          <input
-                            className="border border-gray-300 rounded px-2 py-1 text-sm"
-                            type="number"
-                            step="0.01"
-                            value={editLimitAmount}
-                            onChange={e => setEditLimitAmount(e.target.value)}
-                            placeholder="Limite"
-                          />
-                          <input
-                            className="border border-gray-300 rounded px-2 py-1 text-sm"
-                            type="number"
-                            step="0.01"
-                            value={editTotalSpent}
-                            onChange={e => setEditTotalSpent(e.target.value)}
-                            placeholder="Gasto"
-                          />
-                          <input
-                            className="border border-gray-300 rounded px-2 py-1 text-sm"
-                            type="number"
-                            min="1"
-                            max="31"
-                            value={editClosingDay}
-                            onChange={e => setEditClosingDay(e.target.value ? Number(e.target.value) : '')}
-                            placeholder="Fechamento"
-                          />
-                          <input
-                            className="border border-gray-300 rounded px-2 py-1 text-sm"
-                            type="number"
-                            min="1"
-                            max="31"
-                            value={editDueDay}
-                            onChange={e => setEditDueDay(e.target.value ? Number(e.target.value) : '')}
-                            placeholder="Vencimento"
-                          />
-                        </div>
-                        <div className="flex gap-2">
+                        <input
+                          className="bg-dark-surface border border-dark-border rounded-lg px-3 py-2 text-sm text-gray-200 focus:ring-2 focus:ring-blue-500"
+                          type="number"
+                          step="0.01"
+                          value={editTotalSpent}
+                          onChange={e => setEditTotalSpent(e.target.value)}
+                          placeholder="Gasto"
+                        />
+                        <input
+                          className="bg-dark-surface border border-dark-border rounded-lg px-3 py-2 text-sm text-gray-200 focus:ring-2 focus:ring-blue-500"
+                          type="number"
+                          min="1"
+                          max="31"
+                          value={editClosingDay}
+                          onChange={e => setEditClosingDay(e.target.value ? Number(e.target.value) : '')}
+                          placeholder="Fech."
+                        />
+                        <input
+                          className="bg-dark-surface border border-dark-border rounded-lg px-3 py-2 text-sm text-gray-200 focus:ring-2 focus:ring-blue-500"
+                          type="number"
+                          min="1"
+                          max="31"
+                          value={editDueDay}
+                          onChange={e => setEditDueDay(e.target.value ? Number(e.target.value) : '')}
+                          placeholder="Venc."
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={handleSaveEdit}
+                          className="flex-1 bg-blue-600 text-white rounded-lg px-3 py-2 hover:bg-blue-500 text-sm transition-colors font-medium"
+                        >
+                          Salvar
+                        </button>
+                        <button
+                          onClick={() => setEditingId(null)}
+                          className="flex-1 bg-dark-surface text-gray-300 rounded-lg px-3 py-2 hover:bg-dark-hover text-sm transition-colors border border-dark-border"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Header row */}
+                      <div className="flex items-start justify-between mb-1">
+                        <h3 className={`font-bold text-lg leading-tight ${color.name}`}>{card.name}</h3>
+                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
-                            onClick={handleSaveEdit}
-                            className="flex-1 bg-blue-600 text-white rounded px-3 py-1 hover:bg-blue-700 text-sm transition-colors"
+                            onClick={() => handleEdit(card)}
+                            className="p-1.5 text-gray-500 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"
+                            title="Editar"
                           >
-                            Salvar
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
                           </button>
                           <button
-                            onClick={() => setEditingId(null)}
-                            className="flex-1 bg-gray-500 text-white rounded px-3 py-1 hover:bg-gray-600 text-sm transition-colors"
+                            onClick={() => deleteCreditCard(card.id)}
+                            className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                            title="Excluir"
                           >
-                            Cancelar
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
                           </button>
                         </div>
                       </div>
-                    ) : (
-                      <>
-                        <div className="flex items-start justify-between mb-3">
-                          <h3 className={`font-semibold text-base md:text-lg ${bankColor.text}`}>{card.name}</h3>
-                          <div className="flex gap-1">
-                            <button
-                              onClick={() => handleEdit(card)}
-                              className="text-gray-600 hover:text-blue-600 transition-colors"
-                              title="Editar"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                              </svg>
-                            </button>
-                            <button
-                              onClick={() => deleteCreditCard(card.id)}
-                              className="text-gray-600 hover:text-red-600 transition-colors"
-                              title="Excluir"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                              </svg>
-                            </button>
+
+                      {/* Card subtitle - placeholder for brand */}
+                      <p className="text-xs text-gray-500 mb-4">Visa Infinite</p>
+
+                      {/* Available limit */}
+                      <div className="mb-1">
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-sm text-white font-bold">R$</span>
+                          <span className="text-2xl font-bold text-white">
+                            {available.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          </span>
+                        </div>
+                        <div className="text-[10px] font-semibold tracking-wider text-gray-500 uppercase mt-0.5">Limite Disponível</div>
+                      </div>
+
+                      {/* Usage bar */}
+                      <div className="mt-3 mb-4">
+                        <div className="w-full bg-dark-surface rounded-full h-1.5">
+                          <div
+                            className={`h-1.5 rounded-full transition-all ${color.bar}`}
+                            style={{ width: `${usage}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Total & Spent */}
+                      <div className="grid grid-cols-2 gap-3 mb-3">
+                        <div>
+                          <div className="text-[10px] font-semibold tracking-wider text-gray-500 uppercase">Total</div>
+                          <div className="text-sm text-gray-200 font-medium">
+                            <span className="text-[10px] text-gray-400 mr-0.5">R$</span>
+                            {card.limit_amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                           </div>
                         </div>
+                        <div>
+                          <div className="text-[10px] font-semibold tracking-wider text-gray-500 uppercase">Gasto</div>
+                          <div className={`text-sm font-medium ${color.spent}`}>
+                            <span className="text-[10px] mr-0.5">R$</span>
+                            {card.total_spent.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          </div>
+                        </div>
+                      </div>
 
-                        <div className="space-y-2 text-sm">
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Limite:</span>
-                            <span className="font-semibold">R$ {card.limit_amount.toFixed(2)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Gasto:</span>
-                            <span className="font-semibold text-red-600">R$ {card.total_spent.toFixed(2)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Disponível:</span>
-                            <span className={`font-semibold ${getAvailableLimit(card) < 0 ? 'text-red-600' : 'text-blue-600'}`}>
-                              R$ {getAvailableLimit(card).toFixed(2)}
-                            </span>
-                          </div>
-
-                          {/* Barra de progresso */}
-                          <div className="mt-3">
-                            <div className="flex justify-between text-xs text-gray-600 mb-1">
-                              <span>Uso do limite</span>
-                              <span>{getUsagePercentage(card).toFixed(1)}%</span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2">
-                              <div
-                                className={`h-2 rounded-full transition-all ${getUsagePercentage(card) >= 90
-                                  ? 'bg-red-600'
-                                  : getUsagePercentage(card) >= 70
-                                    ? 'bg-yellow-500'
-                                    : 'bg-blue-500'
-                                  }`}
-                                style={{ width: `${Math.min(getUsagePercentage(card), 100)}%` }}
-                              ></div>
-                            </div>
-                          </div>
-
-                          {(card.closing_day || card.due_day) && (
-                            <div className="pt-2 border-t border-gray-200 mt-3">
-                              {card.closing_day && (
-                                <div className="flex justify-between text-xs">
-                                  <span className="text-gray-600">Fechamento:</span>
-                                  <span className="font-medium">Dia {card.closing_day}</span>
-                                </div>
-                              )}
-                              {card.due_day && (
-                                <div className="flex justify-between text-xs mt-1">
-                                  <span className="text-gray-600">Vencimento:</span>
-                                  <span className="font-medium">Dia {card.due_day}</span>
-                                </div>
-                              )}
-                            </div>
+                      {/* Closing & Due days */}
+                      <div className="pt-3 border-t border-dark-border">
+                        <div className="flex flex-wrap gap-x-3 text-[11px] text-gray-500">
+                          {card.closing_day && (
+                            <span><span className="font-semibold uppercase tracking-wide">Fatura:</span> DIA {card.closing_day}</span>
+                          )}
+                          {card.due_day && (
+                            <span><span className="font-semibold uppercase tracking-wide">Vence:</span> DIA {card.due_day}</span>
                           )}
                         </div>
-                      </>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Dashed add-more card */}
+        <div className="border-2 border-dashed border-dark-border rounded-2xl p-4" />
       </div>
     </div>
   )

@@ -96,7 +96,7 @@ export default function Streamings() {
             </div>
 
             {/* Formulário */}
-            <form onSubmit={submit} className="bg-white rounded shadow p-3 md:p-4 border border-gray-200">
+            <form onSubmit={submit} className="bg-dark-card rounded shadow p-3 md:p-4 border border-dark-border">
                 <div className="text-base md:text-lg font-medium mb-3">Adicionar Streaming</div>
                 {error && (
                     <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
@@ -106,7 +106,7 @@ export default function Streamings() {
                 <div className="grid gap-3">
                     <div>
                         <input
-                            className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm md:text-base"
+                            className="w-full border border-dark-border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm md:text-base"
                             type="text"
                             value={name}
                             onChange={e => setName(e.target.value)}
@@ -124,7 +124,7 @@ export default function Streamings() {
                         <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">R$</span>
                             <input
-                                className="w-full border border-gray-300 rounded pl-10 pr-2 py-1 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm md:text-base"
+                                className="w-full border border-dark-border rounded pl-10 pr-2 py-1 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm md:text-base"
                                 type="number"
                                 step="0.01"
                                 min="0"
@@ -146,10 +146,10 @@ export default function Streamings() {
             </form>
 
             {/* Lista de Streamings */}
-            <div className="bg-white rounded shadow border border-gray-200">
-                <div className="p-3 md:p-4 border-b border-gray-200">
+            <div className="bg-dark-card rounded shadow border border-dark-border">
+                <div className="p-3 md:p-4 border-b border-dark-border">
                     <h2 className="text-lg md:text-xl font-semibold mb-1">Meus Streamings</h2>
-                    <p className="text-xs md:text-sm text-gray-600">Gerencie suas assinaturas de streaming</p>
+                    <p className="text-xs md:text-sm text-gray-400">Gerencie suas assinaturas de streaming</p>
                 </div>
 
                 <div className="p-3 md:p-4">
@@ -171,7 +171,7 @@ export default function Streamings() {
                                     {editingId === streaming.id ? (
                                         <div className="space-y-3">
                                             <input
-                                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                                                className="w-full border border-dark-border rounded px-2 py-1 text-sm"
                                                 type="text"
                                                 value={editName}
                                                 onChange={e => setEditName(e.target.value)}
@@ -180,7 +180,7 @@ export default function Streamings() {
                                             <div className="relative">
                                                 <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-xs">R$</span>
                                                 <input
-                                                    className="w-full border border-gray-300 rounded pl-8 pr-2 py-1 text-sm"
+                                                    className="w-full border border-dark-border rounded pl-8 pr-2 py-1 text-sm"
                                                     type="number"
                                                     step="0.01"
                                                     value={editMonthlyPrice}
@@ -197,7 +197,7 @@ export default function Streamings() {
                                                 </button>
                                                 <button
                                                     onClick={() => setEditingId(null)}
-                                                    className="flex-1 bg-gray-500 text-white rounded px-3 py-1 hover:bg-gray-600 text-sm transition-colors"
+                                                    className="flex-1 bg-dark-surface0 text-white rounded px-3 py-1 hover:bg-gray-600 text-sm transition-colors"
                                                 >
                                                     Cancelar
                                                 </button>
@@ -222,7 +222,7 @@ export default function Streamings() {
                                                 <div className="flex gap-1">
                                                     <button
                                                         onClick={() => handleEdit(streaming)}
-                                                        className="text-gray-600 hover:text-purple-600 transition-colors"
+                                                        className="text-gray-400 hover:text-purple-600 transition-colors"
                                                         title="Editar"
                                                     >
                                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -231,7 +231,7 @@ export default function Streamings() {
                                                     </button>
                                                     <button
                                                         onClick={() => deleteStreaming(streaming.id)}
-                                                        className="text-gray-600 hover:text-red-600 transition-colors"
+                                                        className="text-gray-400 hover:text-red-600 transition-colors"
                                                         title="Excluir"
                                                     >
                                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -242,7 +242,7 @@ export default function Streamings() {
                                             </div>
 
                                             <div className="flex justify-between items-center pt-2 border-t" style={{ borderColor: `${streaming.color}30` }}>
-                                                <span className="text-gray-600 text-sm">Mensal:</span>
+                                                <span className="text-gray-400 text-sm">Mensal:</span>
                                                 <span className="font-bold text-lg" style={{ color: streaming.color }}>
                                                     R$ {streaming.monthly_price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                                 </span>

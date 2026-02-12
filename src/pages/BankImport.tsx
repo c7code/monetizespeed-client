@@ -35,12 +35,12 @@ export default function BankImport() {
   }
   return (
     <div className="grid gap-3 md:gap-4">
-      <div className="rounded shadow p-3 md:p-4 border border-gray-200 bg-gray-50">
+      <div className="rounded shadow p-3 md:p-4 border border-dark-border bg-dark-surface">
         <div className="text-base md:text-lg font-medium mb-3">Importar Extrato (CSV simples)</div>
         <input type="file" accept=".csv,text/csv" onChange={onFile} className="w-full file:mr-2 sm:file:mr-4 file:py-2 file:px-2 sm:file:px-4 file:rounded-full file:border-0 file:text-xs sm:file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 text-xs sm:text-sm" />
-        {info && <div className="text-xs sm:text-sm text-gray-700 mt-2">{info}</div>}
+        {info && <div className="text-xs sm:text-sm text-gray-300 mt-2">{info}</div>}
       </div>
-      <div className="text-xs sm:text-sm text-gray-700">Formato esperado: data,descrição,valor. Valores positivos como receitas, negativos como despesas.</div>
+      <div className="text-xs sm:text-sm text-gray-300">Formato esperado: data,descrição,valor. Valores positivos como receitas, negativos como despesas.</div>
     </div>
   )
 }
