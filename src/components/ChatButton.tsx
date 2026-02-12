@@ -22,14 +22,14 @@ export default function ChatButton() {
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={2}
-            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+            d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4M12 15a3 3 0 003-3V5a3 3 0 00-6 0v7a3 3 0 003 3z"
           />
         </svg>
       </button>
 
       {/* Modal do Chat */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black bg-opacity-50 p-4"
           onClick={(e) => {
             if (e.target === e.currentTarget) {

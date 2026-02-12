@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from './store/auth'
 import ChatButton from './components/ChatButton'
+import logoImg from './assets/TUDO NO AZUL-06.png'
+import logoMobileImg from './assets/TUDO NO AZUL-06 (1).png'
 
 // Ícones SVG para cada item do menu
 const icons = {
@@ -87,7 +89,6 @@ export default function App() {
     { to: '/goals', label: 'Metas', icon: icons.goals },
     { to: '/credit-cards', label: 'Cartões', icon: icons.creditCards },
     { to: '/wallets', label: 'Carteiras', icon: icons.wallets },
-    { to: '/streamings', label: 'Streamings', icon: icons.streamings },
     { to: '/bills', label: 'Contas a Pagar', icon: icons.bills },
     { to: '/receivables', label: 'Contas a Receber', icon: icons.receivables },
     { to: '/bank-import', label: 'Integração Bancos', icon: icons.bankImport },
@@ -113,15 +114,8 @@ export default function App() {
         flex flex-col
       `}>
         {/* Logo */}
-        <div className="p-4 border-b border-blue-700">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <span className="font-bold text-xl">tudo no azul</span>
-          </div>
+        <div className="p-4 border-b border-blue-700 flex items-center justify-center">
+          <img src={logoImg} alt="Tudo no Azul" className="h-[4.5rem]" />
         </div>
 
         {/* Navigation */}
@@ -170,7 +164,7 @@ export default function App() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            <span className="font-semibold text-blue-600">tudo no azul</span>
+            <img src={logoMobileImg} alt="Tudo no Azul" className="h-16" />
             <div className="w-10" /> {/* Spacer para centralizar o título */}
           </div>
         </header>
