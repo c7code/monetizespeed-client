@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
 import { useData, Transaction } from '../store/data'
+import Chat from './Chat'
 
 export default function Transactions() {
   const { transactions, deleteTransaction, addTransaction, updateTransaction } = useData()
+  const [chatOpen, setChatOpen] = useState(false)
   const [filter, setFilter] = useState<'all' | 'expense' | 'income' | 'paid' | 'received' | 'pending_payment' | 'pending_receipt'>('all')
   const [search, setSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
@@ -106,7 +108,7 @@ export default function Transactions() {
           <h1 className="text-2xl font-bold text-white">Transações</h1>
           <p className="text-gray-400 text-sm mt-1">Gerencie suas receitas e despesas com facilidade</p>
         </div>
-        <button className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-500 transition-colors font-medium text-sm shadow-lg shadow-blue-600/20">
+        <button onClick={() => setChatOpen(true)} className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-500 transition-colors font-medium text-sm shadow-lg shadow-blue-600/20">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
@@ -122,8 +124,8 @@ export default function Transactions() {
               key={f.key}
               onClick={() => { setFilter(f.key); setCurrentPage(1) }}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === f.key
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-400 hover:text-gray-200'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-400 hover:text-gray-200'
                 }`}
             >
               {f.label}
@@ -268,8 +270,8 @@ export default function Transactions() {
                     <td className="px-5 py-4 text-sm text-gray-300 hidden sm:table-cell">{t.category}</td>
                     <td className="px-5 py-4">
                       <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${t.type === 'expense'
-                          ? 'text-red-400 bg-red-500/15 border border-red-500/30'
-                          : 'text-green-400 bg-green-500/15 border border-green-500/30'
+                        ? 'text-red-400 bg-red-500/15 border border-red-500/30'
+                        : 'text-green-400 bg-green-500/15 border border-green-500/30'
                         }`}>
                         {t.type === 'expense' ? 'Despesa' : 'Receita'}
                       </span>
@@ -332,6 +334,36 @@ export default function Transactions() {
           </div>
         </div>
       </div>
+      {/* Chat Modal */}
+      {chatOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setChatOpen(false)
+          }}
+        >
+          <div className="bg-dark-card border border-dark-border rounded-t-2xl md:rounded-2xl shadow-xl w-full max-w-2xl h-[85dvh] md:h-[80dvh] flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-dark-border">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-100">Chat de Gastos</h3>
+                <p className="text-xs text-gray-500">Digite seus gastos em linguagem natural</p>
+              </div>
+              <button
+                onClick={() => setChatOpen(false)}
+                className="text-gray-500 hover:text-gray-300 transition-colors"
+                aria-label="Fechar chat"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="flex-1 overflow-hidden flex flex-col">
+              <Chat showHeader={false} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

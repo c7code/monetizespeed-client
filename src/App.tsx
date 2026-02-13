@@ -96,7 +96,7 @@ export default function App() {
   ]
 
   return (
-    <div className="min-h-screen bg-dark-bg flex font-sans">
+    <div className="min-h-screen min-h-[100dvh] bg-dark-bg flex font-sans">
       {/* Overlay para mobile */}
       {sidebarOpen && (
         <div
@@ -126,8 +126,8 @@ export default function App() {
               to={item.to}
               onClick={() => setSidebarOpen(false)}
               className={`nav-item ${pathname === item.to
-                  ? 'nav-item-active'
-                  : 'nav-item-inactive'
+                ? 'nav-item-active'
+                : 'nav-item-inactive'
                 }`}
             >
               {item.icon}
@@ -166,7 +166,7 @@ export default function App() {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-h-screen">
+      <div className="flex-1 flex flex-col min-h-screen min-h-[100dvh]">
         {/* Top bar for mobile */}
         <header className="lg:hidden bg-dark-sidebar border-b border-dark-border">
           <div className="flex items-center justify-between px-4 py-3">

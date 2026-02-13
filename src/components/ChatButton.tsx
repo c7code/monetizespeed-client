@@ -37,7 +37,7 @@ export default function ChatButton() {
             }
           }}
         >
-          <div className="bg-dark-card border border-dark-border rounded-t-2xl md:rounded-2xl shadow-xl w-full max-w-2xl h-[85vh] md:h-[80vh] flex flex-col">
+          <div className="bg-dark-card border border-dark-border rounded-t-2xl md:rounded-2xl shadow-xl w-full max-w-2xl h-[85dvh] md:h-[80dvh] flex flex-col">
             {/* Header do Modal */}
             <div className="flex items-center justify-between p-4 border-b border-dark-border">
               <div>

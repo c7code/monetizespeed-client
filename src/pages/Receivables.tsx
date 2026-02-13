@@ -375,7 +375,7 @@ export default function Receivables() {
             {/* Modal de Criação/Edição */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-gray-900 text-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-700">
+                    <div className="bg-gray-900 text-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90dvh] overflow-y-auto border border-gray-700">
                         <div className="p-6 border-b border-gray-800 flex justify-between items-center bg-gray-900 sticky top-0 z-10">
                             <h2 className="text-xl font-bold text-green-500">
                                 {editingReceivable ? 'Editar Conta a Receber' : 'Nova Conta a Receber'}

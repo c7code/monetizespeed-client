@@ -1,12 +1,14 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useData } from '../store/data'
 import { useAuth } from '../store/auth'
 import { Link } from 'react-router-dom'
 import PieChart from '../components/PieChart'
+import Chat from './Chat'
 
 export default function Dashboard() {
   const { transactions, budgets } = useData()
   const { user } = useAuth()
+  const [chatOpen, setChatOpen] = useState(false)
 
   // Balance calculations
   const balance = useMemo(() =>
@@ -144,15 +146,15 @@ export default function Dashboard() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
             </svg>
           </button>
-          <Link
-            to="/transactions"
+          <button
+            onClick={() => setChatOpen(true)}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-medium px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-blue-600/20"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
             Nova Transação
-          </Link>
+          </button>
         </div>
       </div>
 
@@ -342,6 +344,36 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+      {/* Chat Modal */}
+      {chatOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setChatOpen(false)
+          }}
+        >
+          <div className="bg-dark-card border border-dark-border rounded-t-2xl md:rounded-2xl shadow-xl w-full max-w-2xl h-[85dvh] md:h-[80dvh] flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-dark-border">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-100">Chat de Gastos</h3>
+                <p className="text-xs text-gray-500">Digite seus gastos em linguagem natural</p>
+              </div>
+              <button
+                onClick={() => setChatOpen(false)}
+                className="text-gray-500 hover:text-gray-300 transition-colors"
+                aria-label="Fechar chat"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="flex-1 overflow-hidden flex flex-col">
+              <Chat showHeader={false} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
