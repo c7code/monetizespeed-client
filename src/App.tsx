@@ -96,7 +96,7 @@ export default function App() {
   ]
 
   return (
-    <div className="min-h-screen min-h-[100dvh] bg-dark-bg flex font-sans">
+    <div className="h-screen h-[100dvh] bg-dark-bg flex font-sans overflow-hidden safe-top safe-left safe-right">
       {/* Overlay para mobile */}
       {sidebarOpen && (
         <div
@@ -166,7 +166,7 @@ export default function App() {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-h-screen min-h-[100dvh]">
+      <div className="flex-1 flex flex-col h-full overflow-hidden">
         {/* Top bar for mobile */}
         <header className="lg:hidden bg-dark-sidebar border-b border-dark-border">
           <div className="flex items-center justify-between px-4 py-3">
@@ -185,7 +185,7 @@ export default function App() {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">
+        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto safe-bottom">
           <div className="max-w-7xl mx-auto">
             <Outlet />
           </div>
