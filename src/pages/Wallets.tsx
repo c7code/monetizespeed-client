@@ -90,7 +90,7 @@ export default function Wallets() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 overflow-x-hidden">
             {/* Saldo Consolidado Banner */}
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 via-blue-600 to-blue-500 p-6 md:p-8">
                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />

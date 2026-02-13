@@ -166,7 +166,7 @@ export default function App() {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden">
+      <div className="flex-1 flex flex-col h-full overflow-hidden min-w-0">
         {/* Top bar for mobile */}
         <header className="lg:hidden bg-dark-sidebar border-b border-dark-border">
           <div className="flex items-center justify-between px-4 py-3">
@@ -185,8 +185,8 @@ export default function App() {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto safe-bottom">
-          <div className="max-w-7xl mx-auto">
+        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto overflow-x-hidden safe-bottom">
+          <div className="max-w-7xl mx-auto w-full">
             <Outlet />
           </div>
         </main>
