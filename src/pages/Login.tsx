@@ -67,13 +67,12 @@ export default function Login() {
                   placeholder="••••••••"
                   required
                 />
-                <button
-                  type="button"
-                  onClick={() => setPassword(p => p)}
+                <Link
+                  to="/forgot-password"
                   className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-xs sm:text-sm text-blue-400 hover:text-blue-300 whitespace-nowrap"
                 >
                   Esqueci minha senha
-                </button>
+                </Link>
               </div>
             </div>
 

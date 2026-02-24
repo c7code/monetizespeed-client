@@ -17,6 +17,8 @@ import Wallets from './pages/Wallets'
 import Streamings from './pages/Streamings'
 import Bills from './pages/Bills'
 import Receivables from './pages/Receivables'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 import { DataProvider } from './store/data'
 import { useAuth, AuthProvider } from './store/auth'
 
@@ -35,6 +37,8 @@ root.render(
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/" element={<RequireAuth><App /></RequireAuth>}>
               <Route index element={<Dashboard />} />
               <Route path="transactions" element={<Transactions />} />
