@@ -8,7 +8,7 @@ export default function Home() {
         <div className="min-h-screen bg-white text-gray-900 overflow-x-hidden">
             {/* ===== NAVBAR ===== */}
             <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center h-28">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center md:justify-start h-28">
                     <Link to="/" className="flex items-center">
                         <img src={logo} alt="Tudo no Azul" className="h-36" />
                     </Link>
@@ -19,7 +19,7 @@ export default function Home() {
                         <a href="#numeros" className="hover:text-blue-600 transition-colors">Números</a>
                     </div>
 
-                    <div className="flex items-center gap-3 ml-auto">
+                    <div className="hidden md:flex items-center gap-3 ml-auto">
                         <Link
                             to="/login"
                             className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors px-3 py-2"
