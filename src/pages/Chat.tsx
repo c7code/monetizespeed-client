@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useData, presetCategories } from '../store/data'
+import { useAuth } from '../store/auth'
+import { apiUrl } from '../config/api'
 import AudioRecorder from '../components/AudioRecorder'
 
 type Message = {
@@ -8,6 +10,7 @@ type Message = {
   sender: 'user' | 'bot'
   timestamp: Date
   transactionCreated?: boolean
+  imageUrl?: string
 }
 
 // Mapeamento de palavras-chave para categorias
@@ -129,10 +132,11 @@ type ChatProps = {
 
 export default function Chat({ showHeader = true }: ChatProps) {
   const { addTransaction } = useData()
+  const { token } = useAuth()
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: 'Olá! Eu sou seu assistente de finanças. Você pode me dizer seus gastos e receitas em linguagem natural. Por exemplo: "Gastei R$ 50 com comida hoje" ou "Paguei R$ 100 de aluguel".',
+      text: 'Olá! Eu sou seu assistente de finanças. Você pode me dizer seus gastos e receitas em linguagem natural, gravar um áudio ou enviar uma foto de recibo/nota fiscal. Por exemplo: "Gastei R$ 50 com comida hoje" ou "Paguei R$ 100 de aluguel".',
       sender: 'bot',
       timestamp: new Date()
     }
@@ -140,6 +144,7 @@ export default function Chat({ showHeader = true }: ChatProps) {
   const [input, setInput] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -280,6 +285,96 @@ export default function Chat({ showHeader = true }: ChatProps) {
     setIsProcessing(false)
   }
 
+  // ==================== IMAGE UPLOAD ====================
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || isProcessing) return
+
+    // Reset input so the same file can be selected again
+    e.target.value = ''
+
+    setIsProcessing(true)
+
+    // Create a local preview URL
+    const previewUrl = URL.createObjectURL(file)
+
+    // Add user message with image preview
+    const userMsg: Message = {
+      id: Date.now().toString(),
+      text: '📷 Foto enviada para análise',
+      sender: 'user',
+      timestamp: new Date(),
+      imageUrl: previewUrl
+    }
+    setMessages(prev => [...prev, userMsg])
+
+    try {
+      const formData = new FormData()
+      formData.append('image', file)
+
+      const response = await fetch(apiUrl('/image/transaction'), {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null)
+        throw new Error(errorData?.error || 'Erro ao processar imagem no servidor.')
+      }
+
+      const result = await response.json()
+      const { analysis, data } = result
+
+      if (data && data.amount) {
+        let finalCategory = data.category
+        if (!presetCategories.includes(finalCategory)) {
+          finalCategory = 'Outros'
+        }
+
+        await addTransaction({
+          type: data.type || 'expense',
+          category: finalCategory,
+          amount: Number(data.amount),
+          date: data.date || new Date().toISOString().slice(0, 10),
+          description: data.description || 'Transação via foto',
+          status: data.type === 'expense' ? 'paid' : 'received'
+        })
+
+        const botMsg: Message = {
+          id: (Date.now() + 1).toString(),
+          text: `🔍 ${analysis}\n\n✅ Transação criada com sucesso!\n\nTipo: ${data.type === 'expense' ? 'Despesa' : 'Receita'}\nValor: R$ ${Number(data.amount).toFixed(2)}\nCategoria: ${finalCategory}\nDescrição: ${data.description}`,
+          sender: 'bot',
+          timestamp: new Date(),
+          transactionCreated: true
+        }
+        setMessages(prev => [...prev, botMsg])
+      } else {
+        const botMsg: Message = {
+          id: (Date.now() + 1).toString(),
+          text: `🔍 ${analysis || 'Não foi possível identificar uma transação financeira nesta imagem.'}\n\n⚠️ Tente enviar uma foto mais nítida do recibo ou nota fiscal.`,
+          sender: 'bot',
+          timestamp: new Date()
+        }
+        setMessages(prev => [...prev, botMsg])
+      }
+    } catch (error) {
+      console.error('Erro ao processar imagem:', error)
+      const errorMsg: Message = {
+        id: (Date.now() + 1).toString(),
+        text: `❌ Erro ao processar imagem: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
+        sender: 'bot',
+        timestamp: new Date()
+      }
+      setMessages(prev => [...prev, errorMsg])
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
   return (
     <div className={`flex flex-col ${showHeader ? 'h-[calc(100dvh-120px)]' : 'h-full'}`}>
       {showHeader && (
@@ -306,6 +401,13 @@ export default function Chat({ showHeader = true }: ChatProps) {
                   : 'bg-dark-hover text-gray-200'
                 }`}
             >
+              {msg.imageUrl && (
+                <img
+                  src={msg.imageUrl}
+                  alt="Foto enviada"
+                  className="w-48 h-36 object-cover rounded-md mb-2"
+                />
+              )}
               <p className="text-sm md:text-base whitespace-pre-wrap">{msg.text}</p>
               <p className="text-xs mt-1 opacity-70">
                 {msg.timestamp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
@@ -337,6 +439,27 @@ export default function Chat({ showHeader = true }: ChatProps) {
             className="flex-1 border border-dark-border rounded-lg px-3 md:px-4 py-2 text-sm md:text-base text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             disabled={isProcessing}
           />
+          {/* Image upload button */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={handleImageUpload}
+            className="hidden"
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isProcessing}
+            className="flex items-center justify-center bg-cyan-600 text-white rounded-full p-2 hover:bg-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+            title="Enviar foto de recibo/nota fiscal"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </button>
           <AudioRecorder onTranscriptionComplete={handleAudioData} />
           <button
             type="submit"
@@ -347,7 +470,7 @@ export default function Chat({ showHeader = true }: ChatProps) {
           </button>
         </div>
         <p className="text-xs text-gray-500 mt-2">
-          💡 Dica: Use frases como "Gastei R$ 50 com comida" ou "Paguei R$ 100 de aluguel"
+          💡 Dica: Use frases como "Gastei R$ 50 com comida", grave um áudio ou envie uma 📷 foto de recibo
         </p>
       </form>
     </div>
