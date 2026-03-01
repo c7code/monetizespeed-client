@@ -30,7 +30,7 @@ export default function Register() {
     setLoading(true)
     try {
       await register(email, password, name)
-      navigate('/')
+      navigate('/app')
     } catch (err: any) {
       setError(err.message || 'Erro ao cadastrar')
     } finally {

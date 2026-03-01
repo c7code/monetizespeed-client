@@ -82,17 +82,17 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const navItems = [
-    { to: '/', label: 'Painel Geral', icon: icons.dashboard },
-    { to: '/transactions', label: 'Transações', icon: icons.transactions },
-    { to: '/budgets', label: 'Orçamentos', icon: icons.budgets },
-    { to: '/reports', label: 'Estatísticas', icon: icons.reports },
-    { to: '/goals', label: 'Metas', icon: icons.goals },
-    { to: '/credit-cards', label: 'Cartões', icon: icons.creditCards },
-    { to: '/wallets', label: 'Carteiras', icon: icons.wallets },
-    { to: '/bills', label: 'Contas a Pagar', icon: icons.bills },
-    { to: '/receivables', label: 'Contas a Receber', icon: icons.receivables },
-    { to: '/bank-import', label: 'Integração Bancos', icon: icons.bankImport },
-    { to: '/chat', label: 'Chat', icon: icons.chat }
+    { to: '/app', label: 'Painel Geral', icon: icons.dashboard },
+    { to: '/app/transactions', label: 'Transações', icon: icons.transactions },
+    { to: '/app/budgets', label: 'Orçamentos', icon: icons.budgets },
+    { to: '/app/reports', label: 'Estatísticas', icon: icons.reports },
+    { to: '/app/goals', label: 'Metas', icon: icons.goals },
+    { to: '/app/credit-cards', label: 'Cartões', icon: icons.creditCards },
+    { to: '/app/wallets', label: 'Carteiras', icon: icons.wallets },
+    { to: '/app/bills', label: 'Contas a Pagar', icon: icons.bills },
+    { to: '/app/receivables', label: 'Contas a Receber', icon: icons.receivables },
+    { to: '/app/bank-import', label: 'Integração Bancos', icon: icons.bankImport },
+    { to: '/app/chat', label: 'Chat', icon: icons.chat }
   ]
 
   return (

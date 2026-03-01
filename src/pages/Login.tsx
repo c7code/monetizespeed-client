@@ -17,7 +17,7 @@ export default function Login() {
     setLoading(true)
     try {
       await login(email, password)
-      navigate('/')
+      navigate('/app')
     } catch (err: any) {
       setError(err.message || 'Falha no login')
     } finally {
