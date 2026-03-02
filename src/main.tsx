@@ -20,6 +20,7 @@ import Bills from './pages/Bills'
 import Receivables from './pages/Receivables'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
+import WhatsApp from './pages/WhatsApp'
 import { DataProvider } from './store/data'
 import { useAuth, AuthProvider } from './store/auth'
 
@@ -57,6 +58,7 @@ root.render(
               <Route path="streamings" element={<Streamings />} />
               <Route path="bills" element={<Bills />} />
               <Route path="receivables" element={<Receivables />} />
+              <Route path="whatsapp" element={<WhatsApp />} />
             </Route>
           </Routes>
         </BrowserRouter>
