@@ -15,7 +15,7 @@ export default function Home() {
             <nav className="fixed top-0 w-full z-50 bg-[#09090b]/80 backdrop-blur-xl border-b border-white/5">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-20">
                     <Link to="/" className="flex items-center hover:opacity-90 transition-opacity">
-                        <img src={logoWhite} alt="Tudo no Azul" className="h-16 object-contain" />
+                        <img src={logoWhite} alt="Tudo no Azul" className="h-28 object-contain" />
                     </Link>
 
                     <div className="hidden md:flex items-center gap-8 text-[14px] font-medium text-zinc-400">
@@ -60,7 +60,7 @@ export default function Home() {
                             </h1>
 
                             <p className="text-lg text-zinc-400 leading-relaxed mb-8">
-                                Centralize seus gastos, acompanhe metas e organize sua rotina em um só lugar. 
+                                Centralize seus gastos, acompanhe metas e organize sua rotina em um só lugar.
                                 Registre despesas direto do WhatsApp e mantenha sua agenda sob controle.
                             </p>
 
@@ -95,7 +95,7 @@ export default function Home() {
                         {/* Visual Mockups */}
                         <div className="relative isolate">
                             <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/20 to-cyan-500/10 rounded-3xl blur-3xl -z-10" />
-                            
+
                             <div className="bg-[#121214] border border-white/5 rounded-2xl p-6 shadow-2xl relative z-10">
                                 <div className="grid grid-cols-2 gap-4 mb-6">
                                     <div className="bg-white/5 rounded-xl p-5 border border-white/5">
@@ -270,7 +270,7 @@ export default function Home() {
 
                         <div className="bg-[#121214] border border-white/5 rounded-2xl p-6 sm:p-8">
                             <h3 className="text-lg font-bold text-white mb-8">Progresso semanal</h3>
-                            
+
                             <div className="mb-8">
                                 <div className="flex justify-between text-sm mb-3">
                                     <span className="text-zinc-400">Tarefas concluídas</span>
@@ -370,7 +370,7 @@ export default function Home() {
                             { q: "Quanto custa usar o Tudo no Azul?", a: "Oferecemos um plano gratuito com recursos essenciais e planos premium para quem busca recursos avançados de IA e relatórios ilimitados." }
                         ].map((item, i) => (
                             <div key={i} className="bg-[#121214] border border-white/5 rounded-xl overflow-hidden transition-all">
-                                <button 
+                                <button
                                     className="w-full px-6 py-5 flex justify-between items-center text-left text-white font-medium hover:bg-white/[0.02]"
                                     onClick={() => toggleFaq(i)}
                                 >
@@ -395,7 +395,7 @@ export default function Home() {
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="bg-[#121214] border border-white/5 rounded-3xl p-8 sm:p-12 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" />
-                        
+
                         <div className="grid sm:grid-cols-2 gap-12 items-center relative z-10">
                             <div>
                                 <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold rounded-full px-3 py-1 mb-6">
@@ -403,22 +403,22 @@ export default function Home() {
                                 </div>
                                 <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Comece em minutos</h2>
                                 <p className="text-zinc-400 mb-8 leading-relaxed">Cadastre-se e conecte seu WhatsApp para registrar seus gastos.</p>
-                                
+
                                 <div className="flex flex-wrap gap-4 text-xs font-medium text-zinc-400">
                                     <span className="flex items-center gap-1"><span className="text-blue-500">✓</span> Cadastro gratuito</span>
                                     <span className="flex items-center gap-1"><span className="text-blue-500">✓</span> Sem cartão de crédito</span>
                                     <span className="flex items-center gap-1"><span className="text-blue-500">✓</span> Setup em 2 minutos</span>
                                 </div>
                             </div>
-                            
+
                             <div>
                                 <div className="space-y-4">
-                                    <input 
-                                        type="email" 
-                                        placeholder="Seu melhor e-mail" 
+                                    <input
+                                        type="email"
+                                        placeholder="Seu melhor e-mail"
                                         className="w-full bg-[#09090b] border border-white/10 rounded-xl px-4 py-4 text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                                     />
-                                    <Link 
+                                    <Link
                                         to="/register"
                                         className="w-full inline-flex justify-center items-center bg-blue-600 text-white font-semibold rounded-xl px-4 py-4 hover:bg-blue-500 transition-all shadow-lg shadow-blue-600/20"
                                     >
@@ -440,13 +440,13 @@ export default function Home() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-24">
                         <div className="md:col-span-1">
                             <div className="mb-4">
-                                <img src={logoWhite} alt="Tudo no Azul" className="h-14 object-contain" />
+                                <img src={logoWhite} alt="Tudo no Azul" className="h-28 object-contain" />
                             </div>
                             <p className="text-sm text-zinc-500 leading-relaxed">
                                 Controle financeiro simples e eficiente. Integração WhatsApp e agenda diária em um só lugar.
                             </p>
                         </div>
-                        
+
                         <div>
                             <h4 className="text-white font-semibold mb-6">Produto</h4>
                             <ul className="space-y-4 text-sm text-zinc-500">
@@ -455,7 +455,7 @@ export default function Home() {
                                 <li><a href="#agenda" className="hover:text-blue-400 transition-colors">Agenda</a></li>
                             </ul>
                         </div>
-                        
+
                         <div>
                             <h4 className="text-white font-semibold mb-6">Suporte</h4>
                             <ul className="space-y-4 text-sm text-zinc-500">
@@ -465,7 +465,7 @@ export default function Home() {
                             </ul>
                         </div>
                     </div>
-                    
+
                     <div className="mt-16 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-600 gap-4">
                         <p>© {new Date().getFullYear()} Tudo no Azul. Todos os direitos reservados.</p>
                         <div className="flex gap-6">
