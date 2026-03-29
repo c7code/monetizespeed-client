@@ -1,328 +1,480 @@
-import { Link } from 'react-router-dom'
-import logo from '../assets/TUDO NO AZUL-03.png'
-import logoWhite from '../assets/TUDO NO AZUL-06.png'
-import appMockup from '../assets/app-mockup.png'
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import logoWhite from '../assets/TUDO NO AZUL-06.png'; // Assuming this is a white/transparent logo
 
 export default function Home() {
+    const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+    const toggleFaq = (index: number) => {
+        setOpenFaq(openFaq === index ? null : index);
+    };
+
     return (
-        <div className="min-h-screen bg-white text-gray-900 overflow-x-hidden">
+        <div className="min-h-screen bg-[#09090b] text-zinc-100 overflow-x-hidden font-sans selection:bg-blue-500/30">
             {/* ===== NAVBAR ===== */}
-            <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center md:justify-start h-28">
-                    <Link to="/" className="flex items-center">
-                        <img src={logo} alt="Tudo no Azul" className="h-36" />
+            <nav className="fixed top-0 w-full z-50 bg-[#09090b]/80 backdrop-blur-xl border-b border-white/5">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-20">
+                    <Link to="/" className="flex items-center hover:opacity-90 transition-opacity">
+                        <img src={logoWhite} alt="Tudo no Azul" className="h-16 object-contain" />
                     </Link>
 
-                    <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600 ml-8">
-                        <a href="#vantagens" className="hover:text-blue-600 transition-colors">Vantagens</a>
-                        <a href="#recursos" className="hover:text-blue-600 transition-colors">Recursos</a>
-                        <a href="#numeros" className="hover:text-blue-600 transition-colors">Números</a>
+                    <div className="hidden md:flex items-center gap-8 text-[14px] font-medium text-zinc-400">
+                        <a href="#recursos" className="hover:text-white transition-colors">Recursos</a>
+                        <a href="#whatsapp" className="hover:text-white transition-colors">WhatsApp</a>
+                        <a href="#agenda" className="hover:text-white transition-colors">Agenda</a>
+                        <a href="#depoimentos" className="hover:text-white transition-colors">Depoimentos</a>
+                        <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
                     </div>
 
-                    <div className="hidden md:flex items-center gap-3 ml-auto">
-                        <Link
-                            to="/login"
-                            className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors px-3 py-2"
-                        >
-                            Login
+                    <div className="flex items-center gap-4">
+                        <Link to="/login" className="hidden sm:block text-[14px] font-medium text-zinc-300 hover:text-white transition-colors">
+                            Entrar
                         </Link>
                         <Link
                             to="/register"
-                            className="text-sm font-medium bg-blue-600 text-white rounded-full px-5 py-2 hover:bg-blue-700 transition-all hover:shadow-lg hover:shadow-blue-600/25 active:scale-95"
+                            className="text-[14px] font-semibold bg-blue-600 text-white rounded-lg px-5 py-2 hover:bg-blue-500 transition-all shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_25px_rgba(37,99,235,0.5)]"
                         >
-                            Criar Conta
+                            Começar agora
                         </Link>
                     </div>
                 </div>
             </nav>
 
             {/* ===== HERO ===== */}
-            <section className="relative overflow-hidden">
-                {/* Background gradient */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-cyan-50" />
-                <div className="absolute top-20 -right-40 w-[500px] h-[500px] bg-blue-200/30 rounded-full blur-3xl" />
-                <div className="absolute bottom-20 -left-40 w-[400px] h-[400px] bg-cyan-200/20 rounded-full blur-3xl" />
+            <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+                {/* Glow effects */}
+                <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-blue-600/20 rounded-full blur-[120px] pointer-events-none" />
+                <div className="absolute top-1/3 -right-64 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none" />
 
-                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 lg:pt-24 lg:pb-28">
-                    <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid lg:grid-cols-2 gap-16 lg:gap-8 items-center">
                         {/* Text */}
-                        <div className="text-center lg:text-left">
-                            <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full px-4 py-1.5 mb-6">
-                                <span className="relative flex h-2 w-2">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-500 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
-                                </span>
-                                Novo: Lance gastos por foto e áudio!
+                        <div className="max-w-2xl">
+                            <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold rounded-full px-4 py-1.5 mb-8 backdrop-blur-sm">
+                                <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                                Novo: Integração WhatsApp
                             </div>
 
-                            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight">
-                                Gestão Financeira
-                                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">
-                                    Inteligente no App
-                                </span>
+                            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.1] mb-6">
+                                Controle financeiro simples com integração WhatsApp e agenda diária
                             </h1>
 
-                            <p className="mt-6 text-lg sm:text-xl text-gray-600 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                                Controle seus gastos com inteligência artificial. Envie fotos de recibos ou grave áudios
-                                e deixe a IA lançar suas transações automaticamente.
+                            <p className="text-lg text-zinc-400 leading-relaxed mb-8">
+                                Centralize seus gastos, acompanhe metas e organize sua rotina em um só lugar. 
+                                Registre despesas direto do WhatsApp e mantenha sua agenda sob controle.
                             </p>
 
-                            <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                            <div className="flex flex-col sm:flex-row gap-4">
                                 <Link
                                     to="/register"
-                                    className="inline-flex items-center justify-center bg-blue-600 text-white rounded-full px-8 py-3.5 text-base font-semibold hover:bg-blue-700 transition-all hover:shadow-xl hover:shadow-blue-600/30 active:scale-95"
+                                    className="inline-flex items-center justify-center bg-blue-600 text-white rounded-lg px-8 py-3.5 text-base font-semibold hover:bg-blue-500 transition-all shadow-[0_0_25px_rgba(37,99,235,0.4)]"
                                 >
-                                    Começar Grátis
-                                    <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                    </svg>
+                                    Criar minha conta
                                 </Link>
-                                <Link
-                                    to="/login"
-                                    className="inline-flex items-center justify-center border-2 border-gray-300 text-gray-700 rounded-full px-8 py-3.5 text-base font-semibold hover:border-blue-400 hover:text-blue-600 transition-all active:scale-95"
+                                <a
+                                    href="#recursos"
+                                    className="inline-flex items-center justify-center bg-white/5 border border-white/10 text-white rounded-lg px-8 py-3.5 text-base font-medium hover:bg-white/10 transition-all"
                                 >
-                                    Já tenho conta
-                                </Link>
+                                    Ver recursos
+                                </a>
+                            </div>
+
+                            <div className="mt-10 flex items-center gap-4 text-sm text-zinc-500 font-medium">
+                                <div className="flex -space-x-2">
+                                    <div className="w-8 h-8 rounded-full border-2 border-[#09090b] bg-blue-500 flex items-center justify-center text-white text-[10px] font-bold">M</div>
+                                    <div className="w-8 h-8 rounded-full border-2 border-[#09090b] bg-purple-500 flex items-center justify-center text-white text-[10px] font-bold">C</div>
+                                    <div className="w-8 h-8 rounded-full border-2 border-[#09090b] bg-orange-500 flex items-center justify-center text-white text-[10px] font-bold">A</div>
+                                </div>
+                                <div>
+                                    <p className="text-white font-semibold">+5.000 usuários ativos</p>
+                                    <p className="text-xs">Crescendo diariamente</p>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Phone Mockup */}
-                        <div className="flex justify-center lg:justify-end">
-                            <div className="relative">
-                                <div className="absolute inset-0 bg-gradient-to-t from-blue-600/20 to-transparent rounded-3xl blur-2xl scale-110" />
-                                <img
-                                    src={appMockup}
-                                    alt="App Tudo no Azul"
-                                    className="relative w-72 sm:w-80 lg:w-96 drop-shadow-2xl rounded-3xl"
-                                />
+                        {/* Visual Mockups */}
+                        <div className="relative isolate">
+                            <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/20 to-cyan-500/10 rounded-3xl blur-3xl -z-10" />
+                            
+                            <div className="bg-[#121214] border border-white/5 rounded-2xl p-6 shadow-2xl relative z-10">
+                                <div className="grid grid-cols-2 gap-4 mb-6">
+                                    <div className="bg-white/5 rounded-xl p-5 border border-white/5">
+                                        <p className="text-xs text-zinc-400 font-medium mb-1">Saldo</p>
+                                        <p className="text-2xl font-bold text-blue-400">R$ 8.420,00</p>
+                                    </div>
+                                    <div className="bg-white/5 rounded-xl p-5 border border-white/5">
+                                        <p className="text-xs text-zinc-400 font-medium mb-1">Gastos do mês</p>
+                                        <p className="text-2xl font-bold text-white">R$ 3.275,00</p>
+                                    </div>
+                                </div>
+
+                                <div className="bg-white/5 rounded-xl p-5 border border-white/5">
+                                    <p className="text-xs text-zinc-400 font-medium mb-4">Próximos compromissos</p>
+                                    <div className="space-y-4">
+                                        <div className="flex justify-between items-center text-sm">
+                                            <span className="text-white font-medium">Consulta médica</span>
+                                            <span className="text-blue-400">Hoje 16:00</span>
+                                        </div>
+                                        <div className="h-px w-full bg-white/5" />
+                                        <div className="flex justify-between items-center text-sm">
+                                            <span className="text-zinc-300">Reunião financeira</span>
+                                            <span className="text-zinc-500">Amanhã 09:30</span>
+                                        </div>
+                                        <div className="h-px w-full bg-white/5" />
+                                        <div className="flex justify-between items-center text-sm">
+                                            <span className="text-zinc-300">Renovar seguro</span>
+                                            <span className="text-zinc-500">Terça 14:00</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* ===== VANTAGENS ===== */}
-            <section id="vantagens" className="py-20 lg:py-28 bg-white">
+            {/* ===== RECURSOS ===== */}
+            <section id="recursos" className="py-24 border-t border-white/5 bg-[#09090b]/50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Recursos que aceleram sua organização</h2>
+                    <p className="text-zinc-400 text-lg mb-16">Tudo que você precisa para dominar suas finanças.</p>
+
+                    <div className="grid md:grid-cols-3 gap-6">
+                        {/* Card 1 */}
+                        <div className="bg-[#121214] border border-white/5 rounded-2xl p-8 text-left hover:bg-white/[0.02] transition-colors group relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-colors" />
+                            <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mb-6">
+                                <span className="text-2xl">💰</span>
+                            </div>
+                            <h3 className="text-xl font-bold text-white mb-3">Registro de gastos</h3>
+                            <p className="text-zinc-400 text-sm leading-relaxed">
+                                Categorize despesas, defina limites e acompanhe gráficos de desempenho de forma automática.
+                            </p>
+                        </div>
+
+                        {/* Card 2 */}
+                        <div className="bg-[#121214] border border-white/5 rounded-2xl p-8 text-left hover:bg-white/[0.02] transition-colors group relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/20 transition-colors" />
+                            <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center mb-6">
+                                <span className="text-2xl">🎯</span>
+                            </div>
+                            <h3 className="text-xl font-bold text-white mb-3">Metas e alertas</h3>
+                            <p className="text-zinc-400 text-sm leading-relaxed">
+                                Crie metas mensais por categoria e receba alertas proativos ao se aproximar do limite estipulado.
+                            </p>
+                        </div>
+
+                        {/* Card 3 */}
+                        <div className="bg-[#121214] border border-white/5 rounded-2xl p-8 text-left hover:bg-white/[0.02] transition-colors group relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl group-hover:bg-orange-500/20 transition-colors" />
+                            <div className="w-12 h-12 bg-orange-500/10 rounded-xl flex items-center justify-center mb-6">
+                                <span className="text-2xl">📊</span>
+                            </div>
+                            <h3 className="text-xl font-bold text-white mb-3">Relatórios inteligentes</h3>
+                            <p className="text-zinc-400 text-sm leading-relaxed">
+                                Relatórios automáticos por período, categoria e conta. Totalmente exportáveis e fáceis de ler.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ===== WHATSAPP INTEGRAÇÃO ===== */}
+            <section id="whatsapp" className="py-24 border-t border-white/5">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid lg:grid-cols-2 gap-16 items-center">
+                        <div>
+                            <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold rounded-full px-4 py-1.5 mb-6">
+                                💬 Integração WhatsApp
+                            </div>
+                            <h2 className="text-3xl sm:text-4xl font-bold text-white leading-tight mb-6">
+                                Integração com<br />WhatsApp
+                            </h2>
+                            <p className="text-zinc-400 text-lg leading-relaxed mb-8">
+                                Envie uma mensagem como "Almoço 35.90" e o gasto entra automaticamente no sistema. Responda com categorias, anexos e notas sem sair da conversa com nossa Inteligência Artificial.
+                            </p>
+                            <div className="flex gap-4">
+                                <Link to="/register" className="bg-blue-600 text-white rounded-lg px-6 py-3 font-semibold hover:bg-blue-500 transition-colors">
+                                    Conectar meu WhatsApp
+                                </Link>
+                                <a href="#agenda" className="bg-transparent border border-white/10 text-white rounded-lg px-6 py-3 font-medium hover:bg-white/5 transition-colors">
+                                    Conhecer a agenda
+                                </a>
+                            </div>
+                        </div>
+
+                        <div className="bg-[#121214] border border-white/5 rounded-2xl p-6 shadow-2xl relative">
+                            <div className="space-y-4">
+                                <div className="flex justify-end">
+                                    <div className="bg-blue-600/20 border border-blue-500/20 text-zinc-200 rounded-2xl rounded-tr-sm px-4 py-3 text-sm max-w-[80%]">
+                                        <p>Almoço 35.90</p>
+                                    </div>
+                                </div>
+                                <div className="flex justify-start">
+                                    <div className="bg-white/5 border border-white/5 text-zinc-300 rounded-2xl rounded-tl-sm px-4 py-3 text-sm max-w-[80%]">
+                                        <p className="text-blue-400 font-medium mb-1">✓ Confirmado!</p>
+                                        <p>Despesa de <strong>R$ 35,90</strong> registrada em <strong>Alimentação</strong>.</p>
+                                    </div>
+                                </div>
+                                <div className="flex justify-end">
+                                    <div className="bg-blue-600/20 border border-blue-500/20 text-zinc-200 rounded-2xl rounded-tr-sm px-4 py-3 text-sm max-w-[80%]">
+                                        <p>Quanto eu gastei com alimentação?</p>
+                                    </div>
+                                </div>
+                                <div className="flex justify-start">
+                                    <div className="bg-white/5 border border-white/5 text-zinc-300 rounded-2xl rounded-tl-sm px-4 py-3 text-sm max-w-[80%]">
+                                        <p>Você gastou <strong>R$ 450,00</strong> com Alimentação este mês.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ===== AGENDA DIÁRIA ===== */}
+            <section id="agenda" className="py-24 border-t border-white/5 bg-[#09090b]/50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
-                            A Vantagem do Nosso
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500"> App Nativo</span>
-                        </h2>
-                        <p className="mt-4 text-lg text-gray-500 max-w-2xl mx-auto">
-                            Gerencie suas finanças com ferramentas inteligentes direto no seu celular
-                        </p>
+                        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Agenda diária integrada</h2>
+                        <p className="text-zinc-400 text-lg">Compromissos, tarefas e lembretes conectados às suas finanças.</p>
                     </div>
 
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-                        {[
-                            {
-                                icon: (
-                                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
-                                ),
-                                title: 'Lançamento por Foto',
-                                desc: 'Tire uma foto do recibo e a IA extrai automaticamente os dados da transação.'
-                            },
-                            {
-                                icon: (
-                                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                                    </svg>
-                                ),
-                                title: 'Lançamento por Áudio',
-                                desc: 'Diga o que gastou e o sistema registra tudo — mãos livres!'
-                            },
-                            {
-                                icon: (
-                                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                                    </svg>
-                                ),
-                                title: 'Dashboard Completo',
-                                desc: 'Visualize entradas, saídas, orçamentos e categorias em tempo real.'
-                            },
-                            {
-                                icon: (
-                                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                    </svg>
-                                ),
-                                title: 'Dados Criptografados',
-                                desc: 'Seus dados financeiros protegidos com criptografia de ponta a ponta.'
-                            }
-                        ].map((item, i) => (
-                            <div
-                                key={i}
-                                className="group relative bg-gray-50 hover:bg-white rounded-2xl p-6 border border-gray-100 hover:border-blue-200 transition-all hover:shadow-xl hover:shadow-blue-600/5 hover:-translate-y-1"
-                            >
-                                <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                                    {item.icon}
+                    <div className="grid lg:grid-cols-2 gap-8">
+                        <div className="bg-[#121214] border border-white/5 rounded-2xl p-6 sm:p-8 relative overflow-hidden">
+                            <h3 className="text-lg font-bold text-white mb-6">Próximos eventos</h3>
+                            <div className="space-y-3">
+                                <div className="bg-white/5 border border-white/5 rounded-xl p-4 flex justify-between items-center">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-2 h-2 rounded-full bg-blue-500" />
+                                        <span className="text-sm font-medium text-white">Revisão de orçamento</span>
+                                    </div>
+                                    <span className="text-xs text-zinc-500">Seg 10:00</span>
                                 </div>
-                                <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
-                                <p className="text-gray-500 text-sm leading-relaxed">{item.desc}</p>
+                                <div className="bg-white/5 border border-white/5 rounded-xl p-4 flex justify-between items-center">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-2 h-2 rounded-full bg-zinc-600" />
+                                        <span className="text-sm font-medium text-zinc-400">Reunião com contador</span>
+                                    </div>
+                                    <span className="text-xs text-zinc-500">Qua 15:30</span>
+                                </div>
+                                <div className="bg-white/5 border border-white/5 rounded-xl p-4 flex justify-between items-center">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-2 h-2 rounded-full bg-blue-500" />
+                                        <span className="text-sm font-medium text-white">Pagar fatura cartão</span>
+                                    </div>
+                                    <span className="text-xs text-zinc-500">Sex 12:00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-[#121214] border border-white/5 rounded-2xl p-6 sm:p-8">
+                            <h3 className="text-lg font-bold text-white mb-8">Progresso semanal</h3>
+                            
+                            <div className="mb-8">
+                                <div className="flex justify-between text-sm mb-3">
+                                    <span className="text-zinc-400">Tarefas concluídas</span>
+                                    <span className="text-blue-400 font-bold">64%</span>
+                                </div>
+                                <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                                    <div className="h-full bg-blue-500 w-[64%] rounded-full" />
+                                </div>
+                                <p className="text-xs text-zinc-500 mt-3 border-b border-white/5 pb-6">16 de 25 tarefas concluídas</p>
+                            </div>
+
+                            <div>
+                                <div className="flex justify-between items-center mb-2">
+                                    <span className="text-sm text-zinc-400">Meta semanal</span>
+                                    <span className="flex items-center gap-1 text-xs text-emerald-400 font-medium"><svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> No prazo</span>
+                                </div>
+                                <p className="text-3xl font-bold text-white">R$ 2.500</p>
+                                <p className="text-xs text-zinc-500 mt-1">de R$ 3.000 planejados</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ===== DEPOIMENTOS ===== */}
+            <section id="depoimentos" className="py-24 border-t border-white/5">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">O que dizem nossos usuários</h2>
+                        <p className="text-zinc-400 text-lg">Resultados práticos e rotina organizada.</p>
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-6">
+                        <div className="bg-[#121214] border border-white/5 rounded-2xl p-8">
+                            <div className="flex items-center gap-4 mb-6">
+                                <div className="w-10 h-10 rounded-full bg-cyan-500 flex items-center justify-center text-white font-bold text-sm">M</div>
+                                <div>
+                                    <h4 className="font-bold text-white text-sm">Mariana Souza</h4>
+                                    <p className="text-xs text-zinc-500">Empreendedora</p>
+                                </div>
+                            </div>
+                            <div className="flex gap-1 text-yellow-500 mb-4 text-sm">
+                                ★★★★★
+                            </div>
+                            <p className="text-zinc-400 text-sm italic leading-relaxed">
+                                "Registro meus gastos pelo WhatsApp em segundos. Economia real todos os meses graças à visão geral do dashboard."
+                            </p>
+                        </div>
+                        <div className="bg-[#121214] border border-white/5 rounded-2xl p-8">
+                            <div className="flex items-center gap-4 mb-6">
+                                <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-sm">C</div>
+                                <div>
+                                    <h4 className="font-bold text-white text-sm">Carlos Lima</h4>
+                                    <p className="text-xs text-zinc-500">Autônomo</p>
+                                </div>
+                            </div>
+                            <div className="flex gap-1 text-yellow-500 mb-4 text-sm">
+                                ★★★★★
+                            </div>
+                            <p className="text-zinc-400 text-sm italic leading-relaxed">
+                                "A agenda integrada me salvou de esquecer pagamentos importantes. Nunca mais paguei multas por atraso."
+                            </p>
+                        </div>
+                        <div className="bg-[#121214] border border-white/5 rounded-2xl p-8">
+                            <div className="flex items-center gap-4 mb-6">
+                                <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold text-sm">A</div>
+                                <div>
+                                    <h4 className="font-bold text-white text-sm">Ana Pereira</h4>
+                                    <p className="text-xs text-zinc-500">Analista Financeira</p>
+                                </div>
+                            </div>
+                            <div className="flex gap-1 text-yellow-500 mb-4 text-sm">
+                                ★★★★★
+                            </div>
+                            <p className="text-zinc-400 text-sm italic leading-relaxed">
+                                "Relatórios claros, metas fáceis de acompanhar e integração sem esforço. A melhor ferramenta financeira que já usei."
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ===== FAQ ===== */}
+            <section id="faq" className="py-24 border-t border-white/5 bg-[#09090b]/50">
+                <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Perguntas frequentes</h2>
+                        <p className="text-zinc-400 text-lg">Tire suas dúvidas sobre o Tudo no Azul.</p>
+                    </div>
+
+                    <div className="space-y-4">
+                        {[
+                            { q: "Como funciona o registro de gastos pelo WhatsApp?", a: "Basta adicionar nosso número aos seus contatos e enviar uma mensagem com o valor e a descrição. Nossa Inteligência Artificial interpreta a mensagem e registra automaticamente na categoria correta." },
+                            { q: "Posso definir limites de gastos por categoria?", a: "Sim! Você pode definir orçamentos mensais para alimentação, transporte, lazer e muito mais. O app avisa quando você estiver perto do limite." },
+                            { q: "Os dados são seguros?", a: "Totalmente. Utilizamos criptografia de ponta a ponta e não compartilhamos seus dados financeiros com terceiros." },
+                            { q: "Preciso instalar algum aplicativo?", a: "O Tudo no Azul é um Web App que você pode acessar pelo navegador, e nossa integração principal funciona diretamente no seu WhatsApp. Não há obrigação de instalar apps pesados." },
+                            { q: "Quanto custa usar o Tudo no Azul?", a: "Oferecemos um plano gratuito com recursos essenciais e planos premium para quem busca recursos avançados de IA e relatórios ilimitados." }
+                        ].map((item, i) => (
+                            <div key={i} className="bg-[#121214] border border-white/5 rounded-xl overflow-hidden transition-all">
+                                <button 
+                                    className="w-full px-6 py-5 flex justify-between items-center text-left text-white font-medium hover:bg-white/[0.02]"
+                                    onClick={() => toggleFaq(i)}
+                                >
+                                    {item.q}
+                                    <svg className={`w-5 h-5 text-zinc-500 transform transition-transform ${openFaq === i ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                {openFaq === i && (
+                                    <div className="px-6 pb-5 text-zinc-400 text-sm leading-relaxed border-t border-white/5 pt-4">
+                                        {item.a}
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* ===== RECURSOS / EXPERIÊNCIA PREMIUM ===== */}
-            <section id="recursos" className="py-20 lg:py-28 bg-gradient-to-b from-gray-50 to-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid lg:grid-cols-2 gap-12 items-center">
-                        {/* Left side — features */}
-                        <div>
-                            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">
-                                Experiência Premium no
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500"> Android</span>
-                            </h2>
-                            <p className="text-gray-500 text-lg mb-10">
-                                Nosso app nativo oferece funcionalidades exclusivas com inteligência artificial
-                            </p>
-
-                            <div className="space-y-6">
-                                {[
-                                    {
-                                        iconBg: 'bg-blue-100 text-blue-600',
-                                        title: 'Integração com Câmera',
-                                        desc: 'Escaneie recibos, notas fiscais e boletos — o GPT-4o Vision faz o resto.'
-                                    },
-                                    {
-                                        iconBg: 'bg-cyan-100 text-cyan-600',
-                                        title: 'Comando por Voz',
-                                        desc: 'Grave um áudio dizendo "Gastei R$ 50 no almoço" e a transação é criada na hora.'
-                                    },
-                                    {
-                                        iconBg: 'bg-emerald-100 text-emerald-600',
-                                        title: 'Orçamentos & Metas',
-                                        desc: 'Defina limites por categoria e acompanhe o progresso em tempo real.'
-                                    }
-                                ].map((item, i) => (
-                                    <div key={i} className="flex gap-4 items-start">
-                                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${item.iconBg}`}>
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <h4 className="font-semibold text-gray-900">{item.title}</h4>
-                                            <p className="text-sm text-gray-500 mt-1">{item.desc}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Right side — phone */}
-                        <div className="flex justify-center lg:justify-end">
-                            <div className="relative bg-gradient-to-br from-blue-600 to-blue-800 rounded-3xl p-8 sm:p-12 shadow-2xl shadow-blue-600/20">
-                                <div className="absolute top-4 right-4 w-20 h-20 bg-white/10 rounded-full blur-xl" />
-                                <img
-                                    src={appMockup}
-                                    alt="App Tudo no Azul"
-                                    className="relative w-56 sm:w-64 drop-shadow-xl rounded-2xl"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* ===== NÚMEROS ===== */}
-            <section id="numeros" className="py-20 lg:py-28 bg-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-cyan-600 rounded-3xl p-10 sm:p-16 relative overflow-hidden">
-                        {/* Decorations */}
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-                        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
-
-                        <div className="relative grid sm:grid-cols-3 gap-10 text-center text-white">
-                            {[
-                                { value: '+50.000', label: 'Transações registradas' },
-                                { value: 'R$ 12 MI+', label: 'Em gastos organizados' },
-                                { value: '4.9/5', label: 'Nota dos usuários' }
-                            ].map((stat, i) => (
-                                <div key={i}>
-                                    <p className="text-4xl sm:text-5xl font-extrabold">{stat.value}</p>
-                                    <p className="mt-2 text-blue-200 text-sm font-medium">{stat.label}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* ===== SEGURANÇA ===== */}
-            <section className="py-20 lg:py-28 bg-gray-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl mb-6">
-                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                        </svg>
-                    </div>
-                    <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
-                        Dados criptografados e <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">100% seguros</span>
-                    </h2>
-                    <p className="mt-4 text-lg text-gray-500 max-w-2xl mx-auto">
-                        Utilizamos criptografia de ponta e servidores seguros para proteger todas as suas informações financeiras.
-                        Seus dados nunca são compartilhados com terceiros.
-                    </p>
-                </div>
-            </section>
-
             {/* ===== CTA FINAL ===== */}
-            <section className="py-20 lg:py-28 bg-white">
-                <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
-                        Pronto para colocar suas finanças
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500"> no azul?</span>
-                    </h2>
-                    <p className="mt-4 text-lg text-gray-500">
-                        Comece agora — é grátis, rápido e sem cartão de crédito.
-                    </p>
-                    <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-                        <Link
-                            to="/register"
-                            className="inline-flex items-center justify-center bg-blue-600 text-white rounded-full px-8 py-3.5 text-base font-semibold hover:bg-blue-700 transition-all hover:shadow-xl hover:shadow-blue-600/30 active:scale-95"
-                        >
-                            Criar Conta Grátis
-                            <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                            </svg>
-                        </Link>
-                        <Link
-                            to="/login"
-                            className="inline-flex items-center justify-center border-2 border-gray-300 text-gray-700 rounded-full px-8 py-3.5 text-base font-semibold hover:border-blue-400 hover:text-blue-600 transition-all active:scale-95"
-                        >
-                            Fazer Login
-                        </Link>
+            <section className="py-24">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="bg-[#121214] border border-white/5 rounded-3xl p-8 sm:p-12 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" />
+                        
+                        <div className="grid sm:grid-cols-2 gap-12 items-center relative z-10">
+                            <div>
+                                <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold rounded-full px-3 py-1 mb-6">
+                                    <span className="text-base">✨</span> Comece agora
+                                </div>
+                                <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Comece em minutos</h2>
+                                <p className="text-zinc-400 mb-8 leading-relaxed">Cadastre-se e conecte seu WhatsApp para registrar seus gastos.</p>
+                                
+                                <div className="flex flex-wrap gap-4 text-xs font-medium text-zinc-400">
+                                    <span className="flex items-center gap-1"><span className="text-blue-500">✓</span> Cadastro gratuito</span>
+                                    <span className="flex items-center gap-1"><span className="text-blue-500">✓</span> Sem cartão de crédito</span>
+                                    <span className="flex items-center gap-1"><span className="text-blue-500">✓</span> Setup em 2 minutos</span>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div className="space-y-4">
+                                    <input 
+                                        type="email" 
+                                        placeholder="Seu melhor e-mail" 
+                                        className="w-full bg-[#09090b] border border-white/10 rounded-xl px-4 py-4 text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                                    />
+                                    <Link 
+                                        to="/register"
+                                        className="w-full inline-flex justify-center items-center bg-blue-600 text-white font-semibold rounded-xl px-4 py-4 hover:bg-blue-500 transition-all shadow-lg shadow-blue-600/20"
+                                    >
+                                        Criar conta gratuita
+                                    </Link>
+                                    <p className="text-center text-[10px] text-zinc-600 mt-4">
+                                        Ao criar uma conta, você concorda com nossos Termos de Serviço
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
 
             {/* ===== FOOTER ===== */}
-            <footer className="bg-gray-900 text-gray-400 py-12">
+            <footer className="py-12 border-t border-white/5 mt-auto">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                        <div className="flex items-center">
-                            <img src={logoWhite} alt="Tudo no Azul" className="h-24" />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-24">
+                        <div className="md:col-span-1">
+                            <div className="mb-4">
+                                <img src={logoWhite} alt="Tudo no Azul" className="h-14 object-contain" />
+                            </div>
+                            <p className="text-sm text-zinc-500 leading-relaxed">
+                                Controle financeiro simples e eficiente. Integração WhatsApp e agenda diária em um só lugar.
+                            </p>
                         </div>
-
-                        <div className="flex gap-6 text-sm">
-                            <a href="#vantagens" className="hover:text-white transition-colors">Vantagens</a>
-                            <a href="#recursos" className="hover:text-white transition-colors">Recursos</a>
-                            <a href="#numeros" className="hover:text-white transition-colors">Números</a>
+                        
+                        <div>
+                            <h4 className="text-white font-semibold mb-6">Produto</h4>
+                            <ul className="space-y-4 text-sm text-zinc-500">
+                                <li><a href="#recursos" className="hover:text-blue-400 transition-colors">Recursos</a></li>
+                                <li><a href="#whatsapp" className="hover:text-blue-400 transition-colors">WhatsApp</a></li>
+                                <li><a href="#agenda" className="hover:text-blue-400 transition-colors">Agenda</a></li>
+                            </ul>
                         </div>
-
-                        <p className="text-xs text-gray-500">
-                            © {new Date().getFullYear()} Tudo no Azul. Todos os direitos reservados.
-                        </p>
+                        
+                        <div>
+                            <h4 className="text-white font-semibold mb-6">Suporte</h4>
+                            <ul className="space-y-4 text-sm text-zinc-500">
+                                <li><a href="#faq" className="hover:text-blue-400 transition-colors">FAQ</a></li>
+                                <li><a href="#depoimentos" className="hover:text-blue-400 transition-colors">Depoimentos</a></li>
+                                <li><a href="mailto:contato@tudonoazul.com" className="hover:text-blue-400 transition-colors">Contato</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div className="mt-16 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-600 gap-4">
+                        <p>© {new Date().getFullYear()} Tudo no Azul. Todos os direitos reservados.</p>
+                        <div className="flex gap-6">
+                            <a href="#" className="hover:text-zinc-400 transition-colors">Privacidade</a>
+                            <a href="#" className="hover:text-zinc-400 transition-colors">Termos</a>
+                        </div>
                     </div>
                 </div>
             </footer>
         </div>
-    )
+    );
 }
