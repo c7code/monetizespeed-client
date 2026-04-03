@@ -91,31 +91,54 @@ export default function App() {
   const { pathname } = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
+  // Rotas premium (só funcionam com plano ativo)
+  const premiumPaths = [
+    '/app/credit-cards',
+    '/app/wallets',
+    '/app/bills',
+    '/app/receivables',
+    '/app/bank-import',
+    '/app/chat',
+    '/app/whatsapp',
+    '/app/streamings',
+  ]
+
   const navItems = [
-    { to: '/app', label: 'Painel Geral', icon: icons.dashboard },
-    { to: '/app/transactions', label: 'Transações', icon: icons.transactions },
-    { to: '/app/budgets', label: 'Orçamentos', icon: icons.budgets },
-    { to: '/app/reports', label: 'Estatísticas', icon: icons.reports },
-    { to: '/app/goals', label: 'Metas', icon: icons.goals },
-    { to: '/app/credit-cards', label: 'Cartões', icon: icons.creditCards },
-    { to: '/app/wallets', label: 'Carteiras', icon: icons.wallets },
-    { to: '/app/bills', label: 'Contas a Pagar', icon: icons.bills },
-    { to: '/app/receivables', label: 'Contas a Receber', icon: icons.receivables },
-    { to: '/app/bank-import', label: 'Integração Bancos', icon: icons.bankImport },
-    { to: '/app/chat', label: 'Chat', icon: icons.chat },
-    { to: '/app/whatsapp', label: 'WhatsApp', icon: icons.whatsapp },
-    { to: '/app/subscription', label: 'Assinatura', icon: icons.subscription },
+    { to: '/app', label: 'Painel Geral', icon: icons.dashboard, premium: false },
+    { to: '/app/transactions', label: 'Transações', icon: icons.transactions, premium: false },
+    { to: '/app/budgets', label: 'Orçamentos', icon: icons.budgets, premium: false },
+    { to: '/app/reports', label: 'Estatísticas', icon: icons.reports, premium: false },
+    { to: '/app/goals', label: 'Metas', icon: icons.goals, premium: false },
+    { to: '/app/credit-cards', label: 'Cartões', icon: icons.creditCards, premium: true },
+    { to: '/app/wallets', label: 'Carteiras', icon: icons.wallets, premium: true },
+    { to: '/app/bills', label: 'Contas a Pagar', icon: icons.bills, premium: true },
+    { to: '/app/receivables', label: 'Contas a Receber', icon: icons.receivables, premium: true },
+    { to: '/app/bank-import', label: 'Integração Bancos', icon: icons.bankImport, premium: true },
+    { to: '/app/chat', label: 'Chat', icon: icons.chat, premium: true },
+    { to: '/app/whatsapp', label: 'WhatsApp', icon: icons.whatsapp, premium: true },
+    { to: '/app/subscription', label: 'Assinatura', icon: icons.subscription, premium: false },
   ]
 
   const isActive = user?.plan_status === 'active'
   const isSubscriptionPage = pathname === '/app/subscription'
+  const isOnPremiumPage = premiumPaths.some(p => pathname.startsWith(p))
 
-  // Redirecionar para página de assinatura se não for assinante
+  // Redirecionar para página de assinatura se estiver em rota premium sem plano
   useEffect(() => {
-    if (user && !isActive && !isSubscriptionPage) {
-      // Allow a brief grace — show paywall overlay instead of hard redirect
+    if (user && !isActive && isOnPremiumPage) {
+      navigate('/app/subscription', { replace: true })
     }
-  }, [user, isActive, isSubscriptionPage])
+  }, [user, isActive, isOnPremiumPage, navigate])
+
+  function handleNavClick(e: React.MouseEvent, item: { to: string, premium: boolean }) {
+    if (item.premium && !isActive) {
+      e.preventDefault()
+      navigate('/app/subscription')
+      setSidebarOpen(false)
+    } else {
+      setSidebarOpen(false)
+    }
+  }
 
   return (
     <div className="h-screen h-[100dvh] bg-dark-bg flex font-sans overflow-hidden safe-top safe-left safe-right">
@@ -145,15 +168,20 @@ export default function App() {
           {navItems.map(item => (
             <Link
               key={item.to}
-              to={item.to}
-              onClick={() => setSidebarOpen(false)}
-              className={`nav-item ${pathname === item.to
+              to={item.premium && !isActive ? '/app/subscription' : item.to}
+              onClick={(e) => handleNavClick(e, item)}
+              className={`nav-item relative ${pathname === item.to
                 ? 'nav-item-active'
                 : 'nav-item-inactive'
-                }`}
+                } ${item.premium && !isActive ? 'opacity-50' : ''}`}
             >
               {item.icon}
               <span>{item.label}</span>
+              {item.premium && !isActive && (
+                <svg className="w-3.5 h-3.5 ml-auto text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              )}
             </Link>
           ))}
         </nav>
@@ -209,27 +237,6 @@ export default function App() {
         {/* Page Content */}
         <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto overflow-x-hidden safe-bottom">
           <div className="max-w-7xl mx-auto w-full">
-            {/* Paywall overlay for non-premium users */}
-            {user && !isActive && !isSubscriptionPage && (
-              <div className="mb-6 rounded-2xl bg-gradient-to-r from-blue-600/20 to-cyan-600/20 border border-cyan-500/30 p-6 backdrop-blur-sm">
-                <div className="flex items-center justify-between flex-wrap gap-4">
-                  <div>
-                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                      <span>✨</span> Acesso Premium Necessário
-                    </h3>
-                    <p className="text-sm text-gray-300 mt-1">
-                      Assine por <span className="text-cyan-400 font-bold">R$ 29,90/mês</span> ou resgate um código de acesso para usar todas as funcionalidades.
-                    </p>
-                  </div>
-                  <Link
-                    to="/app/subscription"
-                    className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold hover:from-blue-500 hover:to-cyan-500 transition-all shadow-lg shadow-blue-500/20 text-sm"
-                  >
-                    Ver Planos →
-                  </Link>
-                </div>
-              </div>
-            )}
             <Outlet />
           </div>
         </main>
