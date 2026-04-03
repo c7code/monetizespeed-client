@@ -1,12 +1,21 @@
 import React, { createContext, useContext, useMemo, useState } from 'react'
 import { apiUrl } from '../config/api'
 
+type UserType = {
+  id: number
+  email: string
+  name?: string
+  plan_status?: string
+  plan_expires_at?: string | null
+}
+
 type AuthContextType = { 
   token: string | null
-  user: { id: number, email: string, name?: string } | null
+  user: UserType | null
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string, name?: string) => Promise<void>
   logout: () => void
+  updatePlanStatus: (status: string, expiresAt?: string | null) => void
 }
 
 const AuthContext = createContext<AuthContextType>({ 
@@ -14,12 +23,13 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   login: async () => {}, 
   register: async () => {},
-  logout: () => {} 
+  logout: () => {},
+  updatePlanStatus: () => {},
 })
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('ms_token'))
-  const [user, setUser] = useState<{ id: number, email: string, name?: string } | null>(() => {
+  const [user, setUser] = useState<UserType | null>(() => {
     const stored = localStorage.getItem('ms_user')
     return stored ? JSON.parse(stored) : null
   })
@@ -34,24 +44,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ email, password }),
       })
 
-      // Tenta parsear a resposta como JSON
       let data
       try {
         data = await response.json()
       } catch (parseError) {
-        // Se não conseguir parsear, pode ser que a resposta não seja JSON
         const text = await response.text()
         console.error('Resposta do servidor não é JSON:', text)
         throw new Error(`Erro do servidor (${response.status}): ${text || response.statusText}`)
       }
 
       if (!response.ok) {
-        // Erro 500 geralmente indica problema no servidor
         if (response.status === 500) {
           console.error('Erro 500 do servidor:', data)
           throw new Error(data.error || data.message || 'Erro interno do servidor. Verifique os logs do backend.')
         }
-        // Outros erros (400, 401, 404, etc)
         throw new Error(data.error || data.message || `Erro ao fazer login (${response.status})`)
       }
 
@@ -60,7 +66,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setToken(data.token)
       setUser(data.user)
     } catch (error: any) {
-      // Se o erro já tem mensagem, usa ela; senão, cria uma mensagem genérica
       if (error.message) {
         throw error
       }
@@ -78,7 +83,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ email, password, name }),
       })
 
-      // Tenta parsear a resposta como JSON
       let data
       try {
         data = await response.json()
@@ -115,7 +119,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null)
   }
 
-  const value = useMemo(() => ({ token, user, login, register, logout }), [token, user])
+  function updatePlanStatus(status: string, expiresAt?: string | null) {
+    if (user) {
+      const updatedUser = { ...user, plan_status: status, plan_expires_at: expiresAt ?? user.plan_expires_at }
+      localStorage.setItem('ms_user', JSON.stringify(updatedUser))
+      setUser(updatedUser)
+    }
+  }
+
+  const value = useMemo(() => ({ token, user, login, register, logout, updatePlanStatus }), [token, user])
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
