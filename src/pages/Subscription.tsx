@@ -78,45 +78,14 @@ export default function Subscription() {
     return digits
   }
 
-  // Simula tokenização — em produção deve usar Pagar.me.js
-  async function getCardToken() {
-    // NOTA: Em produção, usar a SDK do Pagar.me (pagarme.js) para tokenizar
-    // Por enquanto, mandamos os dados para o backend gerar o token
-    // Em ambiente de teste, isto funciona com a API direta
-    const cardData = {
+  // Retorna os dados do cartão para o backend tokenizar
+  function getCardData() {
+    return {
       number: cardNumber.replace(/\s/g, ''),
       holder_name: cardName,
       exp_month: parseInt(cardExpiry.split('/')[0]),
       exp_year: parseInt('20' + cardExpiry.split('/')[1]),
       cvv: cardCvv,
-    }
-
-    try {
-      const publicKey = import.meta.env.VITE_PAGARME_PUBLIC_KEY || ''
-      if (!publicKey) {
-        // Fallback: enviar dados diretamente para o backend tokenizar
-        return JSON.stringify(cardData)
-      }
-
-      // Tokenização via API Pagar.me
-      const res = await fetch('https://api.pagar.me/core/v5/tokens?appId=' + publicKey, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'card',
-          card: cardData,
-        }),
-      })
-
-      if (!res.ok) {
-        const err = await res.json()
-        throw new Error(err.message || 'Erro ao tokenizar cartão')
-      }
-
-      const data = await res.json()
-      return data.id
-    } catch (e: any) {
-      throw new Error(e.message || 'Erro ao processar dados do cartão')
     }
   }
 
@@ -127,8 +96,6 @@ export default function Subscription() {
     setLoading(true)
 
     try {
-      const cardToken = await getCardToken()
-
       const res = await fetch(apiUrl('/payments/subscribe'), {
         method: 'POST',
         headers: {
@@ -136,7 +103,7 @@ export default function Subscription() {
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
-          cardToken,
+          card: getCardData(),
           document: cpf.replace(/\D/g, ''),
           name: cardName,
         }),
@@ -162,8 +129,6 @@ export default function Subscription() {
     setLoading(true)
 
     try {
-      const cardToken = await getCardToken()
-
       const res = await fetch(apiUrl('/payments/buy-access-codes'), {
         method: 'POST',
         headers: {
@@ -171,7 +136,7 @@ export default function Subscription() {
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
-          cardToken,
+          card: getCardData(),
           document: cpf.replace(/\D/g, ''),
           name: cardName,
           quantity,
