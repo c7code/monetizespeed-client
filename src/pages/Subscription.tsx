@@ -31,6 +31,8 @@ export default function Subscription() {
   const [cardExpiry, setCardExpiry] = useState('')
   const [cardCvv, setCardCvv] = useState('')
   const [cpf, setCpf] = useState('')
+  const [phone, setPhone] = useState('')
+  const [cep, setCep] = useState('')
 
   // Buy codes form
   const [quantity, setQuantity] = useState(1)
@@ -78,6 +80,19 @@ export default function Subscription() {
     return digits
   }
 
+  function formatPhone(value: string) {
+    const digits = value.replace(/\D/g, '').substring(0, 11)
+    if (digits.length > 6) return `(${digits.substring(0, 2)}) ${digits.substring(2, 7)}-${digits.substring(7)}`
+    if (digits.length > 2) return `(${digits.substring(0, 2)}) ${digits.substring(2)}`
+    return digits
+  }
+
+  function formatCep(value: string) {
+    const digits = value.replace(/\D/g, '').substring(0, 8)
+    if (digits.length > 5) return `${digits.substring(0, 5)}-${digits.substring(5)}`
+    return digits
+  }
+
   // Retorna os dados do cartão para o backend tokenizar
   function getCardData() {
     return {
@@ -96,6 +111,7 @@ export default function Subscription() {
     setLoading(true)
 
     try {
+      const cleanPhone = phone.replace(/\D/g, '')
       const res = await fetch(apiUrl('/payments/subscribe'), {
         method: 'POST',
         headers: {
@@ -106,6 +122,14 @@ export default function Subscription() {
           card: getCardData(),
           document: cpf.replace(/\D/g, ''),
           name: cardName,
+          phone: cleanPhone,
+          billing_address: {
+            line_1: '1, Rua do Cliente, Bairro',
+            zip_code: cep.replace(/\D/g, ''),
+            city: 'Cidade',
+            state: 'SP',
+            country: 'BR',
+          },
         }),
       })
 
@@ -129,6 +153,7 @@ export default function Subscription() {
     setLoading(true)
 
     try {
+      const cleanPhone = phone.replace(/\D/g, '')
       const res = await fetch(apiUrl('/payments/buy-access-codes'), {
         method: 'POST',
         headers: {
@@ -140,6 +165,14 @@ export default function Subscription() {
           document: cpf.replace(/\D/g, ''),
           name: cardName,
           quantity,
+          phone: cleanPhone,
+          billing_address: {
+            line_1: '1, Rua do Cliente, Bairro',
+            zip_code: cep.replace(/\D/g, ''),
+            city: 'Cidade',
+            state: 'SP',
+            country: 'BR',
+          },
         }),
       })
 
@@ -387,6 +420,30 @@ export default function Subscription() {
                     className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono"
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Celular</label>
+                  <input
+                    type="text"
+                    value={phone}
+                    onChange={e => setPhone(formatPhone(e.target.value))}
+                    placeholder="(00) 00000-0000"
+                    required
+                    maxLength={15}
+                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1.5">CEP</label>
+                  <input
+                    type="text"
+                    value={cep}
+                    onChange={e => setCep(formatCep(e.target.value))}
+                    placeholder="00000-000"
+                    required
+                    maxLength={9}
+                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono"
+                  />
+                </div>
               </div>
 
               <button
@@ -518,6 +575,30 @@ export default function Subscription() {
                     placeholder="000.000.000-00"
                     required
                     maxLength={14}
+                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Celular</label>
+                  <input
+                    type="text"
+                    value={phone}
+                    onChange={e => setPhone(formatPhone(e.target.value))}
+                    placeholder="(00) 00000-0000"
+                    required
+                    maxLength={15}
+                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1.5">CEP</label>
+                  <input
+                    type="text"
+                    value={cep}
+                    onChange={e => setCep(formatCep(e.target.value))}
+                    placeholder="00000-000"
+                    required
+                    maxLength={9}
                     className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono"
                   />
                 </div>
