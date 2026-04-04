@@ -38,6 +38,9 @@ export default function Subscription() {
   const [neighborhood, setNeighborhood] = useState('')
   const [city, setCity] = useState('')
   const [addressState, setAddressState] = useState('')
+  const [paymentMethod, setPaymentMethod] = useState<'credit_card' | 'pix'>('pix')
+  const [pixData, setPixData] = useState<{ qr_code: string | null, qr_code_url: string | null } | null>(null)
+  const [pixCopied, setPixCopied] = useState(false)
 
   // Buy codes form
   const [quantity, setQuantity] = useState(1)
@@ -143,30 +146,45 @@ export default function Subscription() {
     e.preventDefault()
     if (loading) return
     setMessage(null)
+    setPixData(null)
     setLoading(true)
 
     try {
       const cleanPhone = phone.replace(/\D/g, '')
+      const isPix = paymentMethod === 'pix'
+
+      const body: any = {
+        document: cpf.replace(/\D/g, ''),
+        name: cardName || undefined,
+        phone: cleanPhone,
+        payment_method: paymentMethod,
+      }
+
+      if (!isPix) {
+        body.card = getCardData()
+        body.billing_address = getBillingAddress()
+      }
+
       const res = await fetch(apiUrl('/payments/subscribe'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          card: getCardData(),
-          document: cpf.replace(/\D/g, ''),
-          name: cardName,
-          phone: cleanPhone,
-          billing_address: getBillingAddress(),
-        }),
+        body: JSON.stringify(body),
       })
 
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Erro ao criar assinatura')
 
-      setMessage({ type: 'success', text: data.message })
-      updatePlanStatus(data.plan_status, data.plan_expires_at)
+      // Se PIX, mostrar QR Code
+      if (data.pix_data?.qr_code || data.pix_data?.qr_code_url) {
+        setPixData(data.pix_data)
+        setMessage({ type: 'success', text: data.message })
+      } else {
+        setMessage({ type: 'success', text: data.message })
+        updatePlanStatus(data.plan_status, data.plan_expires_at)
+      }
       fetchStatus()
     } catch (e: any) {
       setMessage({ type: 'error', text: e.message })
@@ -179,34 +197,49 @@ export default function Subscription() {
     e.preventDefault()
     if (loading) return
     setMessage(null)
+    setPixData(null)
     setLoading(true)
 
     try {
       const cleanPhone = phone.replace(/\D/g, '')
+      const isPix = paymentMethod === 'pix'
+
+      const body: any = {
+        document: cpf.replace(/\D/g, ''),
+        name: cardName || undefined,
+        quantity,
+        phone: cleanPhone,
+        payment_method: paymentMethod,
+      }
+
+      if (!isPix) {
+        body.card = getCardData()
+        body.billing_address = getBillingAddress()
+      }
+
       const res = await fetch(apiUrl('/payments/buy-access-codes'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          card: getCardData(),
-          document: cpf.replace(/\D/g, ''),
-          name: cardName,
-          quantity,
-          phone: cleanPhone,
-          billing_address: getBillingAddress(),
-        }),
+        body: JSON.stringify(body),
       })
 
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Erro ao comprar códigos')
 
-      let msg = data.message
-      if (data.codes?.length) {
-        msg += '\n\nCódigos gerados:\n' + data.codes.join('\n')
+      // Se PIX, mostrar QR Code
+      if (data.pix_data?.qr_code || data.pix_data?.qr_code_url) {
+        setPixData(data.pix_data)
+        setMessage({ type: 'success', text: data.message })
+      } else {
+        let msg = data.message
+        if (data.codes?.length) {
+          msg += '\n\nCódigos gerados:\n' + data.codes.join('\n')
+        }
+        setMessage({ type: 'success', text: msg })
       }
-      setMessage({ type: 'success', text: msg })
       fetchStatus()
     } catch (e: any) {
       setMessage({ type: 'error', text: e.message })
@@ -382,148 +415,124 @@ export default function Subscription() {
               </ul>
             </div>
 
+            {/* PIX QR Code Display */}
+            {pixData && (
+              <div className="bg-dark-card rounded-2xl border border-green-500/30 p-6 mb-6">
+                <div className="text-center">
+                  <div className="text-4xl mb-3">📱</div>
+                  <h3 className="text-lg font-bold text-white mb-2">Escaneie o QR Code para pagar</h3>
+                  <p className="text-sm text-gray-400 mb-4">Abra o app do seu banco e escaneie o código abaixo</p>
+                  {pixData.qr_code_url && (
+                    <div className="bg-white rounded-2xl p-4 inline-block mb-4">
+                      <img src={pixData.qr_code_url} alt="QR Code PIX" className="w-52 h-52" />
+                    </div>
+                  )}
+                  {pixData.qr_code && (
+                    <div className="mt-4">
+                      <p className="text-xs text-gray-500 mb-2">Ou copie o código PIX:</p>
+                      <div className="flex items-center gap-2 bg-dark-bg rounded-xl p-3 border border-dark-border">
+                        <code className="text-xs text-cyan-400 flex-1 break-all select-all">{pixData.qr_code}</code>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(pixData.qr_code || '')
+                            setPixCopied(true)
+                            setTimeout(() => setPixCopied(false), 3000)
+                          }}
+                          className="px-3 py-1.5 rounded-lg bg-cyan-600 text-white text-xs font-medium hover:bg-cyan-500 transition-colors flex-shrink-0"
+                        >
+                          {pixCopied ? '✅ Copiado!' : '📋 Copiar'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  <div className="mt-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-3">
+                    <p className="text-xs text-yellow-400">
+                      ⏱️ O QR Code expira em <strong>1 hora</strong>. Após pagar, sua conta será ativada automaticamente.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => { setPixData(null); fetchStatus() }}
+                    className="mt-4 px-6 py-2 rounded-xl border border-dark-border text-gray-400 hover:text-white hover:border-gray-500 transition-all text-sm"
+                  >
+                    ← Voltar
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {!pixData && (
             <form onSubmit={handleSubscribe} className="space-y-4">
+              {/* Seletor de método */}
+              <div className="grid grid-cols-2 gap-3 mb-2">
+                <button type="button" onClick={() => setPaymentMethod('pix')}
+                  className={`flex items-center justify-center gap-2 py-3 rounded-xl border-2 transition-all font-medium ${paymentMethod === 'pix' ? 'border-green-500 bg-green-500/10 text-green-400' : 'border-dark-border bg-dark-bg text-gray-500 hover:border-gray-600'}`}>
+                  <span className="text-lg">📱</span> PIX
+                </button>
+                <button type="button" onClick={() => setPaymentMethod('credit_card')}
+                  className={`flex items-center justify-center gap-2 py-3 rounded-xl border-2 transition-all font-medium ${paymentMethod === 'credit_card' ? 'border-cyan-500 bg-cyan-500/10 text-cyan-400' : 'border-dark-border bg-dark-bg text-gray-500 hover:border-gray-600'}`}>
+                  <span className="text-lg">💳</span> Cartão
+                </button>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Nome no Cartão</label>
-                  <input
-                    type="text"
-                    value={cardName}
-                    onChange={e => setCardName(e.target.value)}
-                    placeholder="Nome como está no cartão"
-                    required
-                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all"
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Número do Cartão</label>
-                  <input
-                    type="text"
-                    value={cardNumber}
-                    onChange={e => setCardNumber(formatCardNumber(e.target.value))}
-                    placeholder="0000 0000 0000 0000"
-                    required
-                    maxLength={19}
-                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono tracking-wider"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Validade</label>
-                  <input
-                    type="text"
-                    value={cardExpiry}
-                    onChange={e => setCardExpiry(formatExpiry(e.target.value))}
-                    placeholder="MM/AA"
-                    required
-                    maxLength={5}
-                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">CVV</label>
-                  <input
-                    type="text"
-                    value={cardCvv}
-                    onChange={e => setCardCvv(e.target.value.replace(/\D/g, '').substring(0, 4))}
-                    placeholder="000"
-                    required
-                    maxLength={4}
-                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono"
-                  />
-                </div>
+                {paymentMethod === 'credit_card' && (<>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Nome no Cartão</label>
+                    <input type="text" value={cardName} onChange={e => setCardName(e.target.value)} placeholder="Nome como está no cartão" required className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Número do Cartão</label>
+                    <input type="text" value={cardNumber} onChange={e => setCardNumber(formatCardNumber(e.target.value))} placeholder="0000 0000 0000 0000" required maxLength={19} className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono tracking-wider" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Validade</label>
+                    <input type="text" value={cardExpiry} onChange={e => setCardExpiry(formatExpiry(e.target.value))} placeholder="MM/AA" required maxLength={5} className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">CVV</label>
+                    <input type="text" value={cardCvv} onChange={e => setCardCvv(e.target.value.replace(/\D/g, '').substring(0, 4))} placeholder="000" required maxLength={4} className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono" />
+                  </div>
+                </>)}
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-400 mb-1.5">CPF</label>
-                  <input
-                    type="text"
-                    value={cpf}
-                    onChange={e => setCpf(formatCpf(e.target.value))}
-                    placeholder="000.000.000-00"
-                    required
-                    maxLength={14}
-                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono"
-                  />
+                  <input type="text" value={cpf} onChange={e => setCpf(formatCpf(e.target.value))} placeholder="000.000.000-00" required maxLength={14} className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1.5">Celular</label>
-                  <input
-                    type="text"
-                    value={phone}
-                    onChange={e => setPhone(formatPhone(e.target.value))}
-                    placeholder="(00) 00000-0000"
-                    required
-                    maxLength={15}
-                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono"
-                  />
+                  <input type="text" value={phone} onChange={e => setPhone(formatPhone(e.target.value))} placeholder="(00) 00000-0000" required maxLength={15} className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono" />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">CEP</label>
-                  <input
-                    type="text"
-                    value={cep}
-                    onChange={e => handleCepChange(e.target.value)}
-                    placeholder="00000-000"
-                    required
-                    maxLength={9}
-                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono"
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Rua</label>
-                  <input
-                    type="text"
-                    value={street}
-                    onChange={e => setStreet(e.target.value)}
-                    placeholder="Rua, Avenida..."
-                    required
-                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Número</label>
-                  <input
-                    type="text"
-                    value={addressNumber}
-                    onChange={e => setAddressNumber(e.target.value.replace(/\D/g, '').substring(0, 6))}
-                    placeholder="123"
-                    required
-                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Bairro</label>
-                  <input
-                    type="text"
-                    value={neighborhood}
-                    onChange={e => setNeighborhood(e.target.value)}
-                    placeholder="Bairro"
-                    required
-                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all"
-                  />
-                </div>
+                {paymentMethod === 'credit_card' && (<>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">CEP</label>
+                    <input type="text" value={cep} onChange={e => handleCepChange(e.target.value)} placeholder="00000-000" required maxLength={9} className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Rua</label>
+                    <input type="text" value={street} onChange={e => setStreet(e.target.value)} placeholder="Rua, Avenida..." required className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Número</label>
+                    <input type="text" value={addressNumber} onChange={e => setAddressNumber(e.target.value.replace(/\D/g, '').substring(0, 6))} placeholder="123" required className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Bairro</label>
+                    <input type="text" value={neighborhood} onChange={e => setNeighborhood(e.target.value)} placeholder="Bairro" required className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all" />
+                  </div>
+                </>)}
               </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold text-lg hover:from-blue-500 hover:to-cyan-500 transition-all duration-200 shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+              <button type="submit" disabled={loading}
+                className={`w-full py-3.5 rounded-xl text-white font-semibold text-lg transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${paymentMethod === 'pix' ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 shadow-green-500/20' : 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 shadow-blue-500/20'}`}>
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>
                     Processando...
                   </span>
-                ) : (
-                  'Assinar por R$ 29,90/mês'
-                )}
+                ) : paymentMethod === 'pix' ? '📱 Gerar PIX — R$ 29,90/mês' : '💳 Assinar por R$ 29,90/mês'}
               </button>
-
-              <p className="text-xs text-gray-500 text-center">
-                🔒 Pagamento seguro via Pagar.me. Cancele quando quiser.
-              </p>
+              <p className="text-xs text-gray-500 text-center">🔒 Pagamento seguro via Pagar.me. Cancele quando quiser.</p>
             </form>
+            )}
           </div>
         )}
 
@@ -538,32 +547,21 @@ export default function Subscription() {
               </p>
             </div>
 
+            {!pixData && (
             <form onSubmit={handleBuyCodes} className="space-y-4">
               {/* Quantity Selector */}
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-3">Quantidade de Códigos</label>
                 <div className="grid grid-cols-4 gap-2">
                   {[1, 3, 5, 10].map(q => (
-                    <button
-                      key={q}
-                      type="button"
-                      onClick={() => setQuantity(q)}
-                      className={`py-3 rounded-xl text-center font-semibold transition-all duration-200 ${
-                        quantity === q
-                          ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/20'
-                          : 'bg-dark-bg border border-dark-border text-gray-400 hover:border-cyan-500/50 hover:text-white'
-                      }`}
-                    >
+                    <button key={q} type="button" onClick={() => setQuantity(q)}
+                      className={`py-3 rounded-xl text-center font-semibold transition-all duration-200 ${quantity === q ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/20' : 'bg-dark-bg border border-dark-border text-gray-400 hover:border-cyan-500/50 hover:text-white'}`}>
                       <span className="text-lg">{q}x</span>
-                      <span className="block text-xs mt-0.5 opacity-70">
-                        R$ {((q * 29.9)).toFixed(2).replace('.', ',')}
-                      </span>
+                      <span className="block text-xs mt-0.5 opacity-70">R$ {((q * 29.9)).toFixed(2).replace('.', ',')}</span>
                     </button>
                   ))}
                 </div>
               </div>
-
-              {/* Total */}
               <div className="bg-dark-bg rounded-xl p-4 border border-dark-border">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">Total:</span>
@@ -573,144 +571,78 @@ export default function Subscription() {
                 </div>
               </div>
 
-              {/* Card Fields (reuses same state) */}
+              {/* Seletor de método */}
+              <div className="grid grid-cols-2 gap-3 mb-2">
+                <button type="button" onClick={() => setPaymentMethod('pix')}
+                  className={`flex items-center justify-center gap-2 py-3 rounded-xl border-2 transition-all font-medium ${paymentMethod === 'pix' ? 'border-green-500 bg-green-500/10 text-green-400' : 'border-dark-border bg-dark-bg text-gray-500 hover:border-gray-600'}`}>
+                  <span className="text-lg">📱</span> PIX
+                </button>
+                <button type="button" onClick={() => setPaymentMethod('credit_card')}
+                  className={`flex items-center justify-center gap-2 py-3 rounded-xl border-2 transition-all font-medium ${paymentMethod === 'credit_card' ? 'border-cyan-500 bg-cyan-500/10 text-cyan-400' : 'border-dark-border bg-dark-bg text-gray-500 hover:border-gray-600'}`}>
+                  <span className="text-lg">💳</span> Cartão
+                </button>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Nome no Cartão</label>
-                  <input
-                    type="text"
-                    value={cardName}
-                    onChange={e => setCardName(e.target.value)}
-                    placeholder="Nome como está no cartão"
-                    required
-                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all"
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Número do Cartão</label>
-                  <input
-                    type="text"
-                    value={cardNumber}
-                    onChange={e => setCardNumber(formatCardNumber(e.target.value))}
-                    placeholder="0000 0000 0000 0000"
-                    required
-                    maxLength={19}
-                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono tracking-wider"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Validade</label>
-                  <input
-                    type="text"
-                    value={cardExpiry}
-                    onChange={e => setCardExpiry(formatExpiry(e.target.value))}
-                    placeholder="MM/AA"
-                    required
-                    maxLength={5}
-                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">CVV</label>
-                  <input
-                    type="text"
-                    value={cardCvv}
-                    onChange={e => setCardCvv(e.target.value.replace(/\D/g, '').substring(0, 4))}
-                    placeholder="000"
-                    required
-                    maxLength={4}
-                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono"
-                  />
-                </div>
+                {paymentMethod === 'credit_card' && (<>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Nome no Cartão</label>
+                    <input type="text" value={cardName} onChange={e => setCardName(e.target.value)} placeholder="Nome como está no cartão" required className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Número do Cartão</label>
+                    <input type="text" value={cardNumber} onChange={e => setCardNumber(formatCardNumber(e.target.value))} placeholder="0000 0000 0000 0000" required maxLength={19} className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono tracking-wider" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Validade</label>
+                    <input type="text" value={cardExpiry} onChange={e => setCardExpiry(formatExpiry(e.target.value))} placeholder="MM/AA" required maxLength={5} className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">CVV</label>
+                    <input type="text" value={cardCvv} onChange={e => setCardCvv(e.target.value.replace(/\D/g, '').substring(0, 4))} placeholder="000" required maxLength={4} className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono" />
+                  </div>
+                </>)}
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-400 mb-1.5">CPF</label>
-                  <input
-                    type="text"
-                    value={cpf}
-                    onChange={e => setCpf(formatCpf(e.target.value))}
-                    placeholder="000.000.000-00"
-                    required
-                    maxLength={14}
-                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono"
-                  />
+                  <input type="text" value={cpf} onChange={e => setCpf(formatCpf(e.target.value))} placeholder="000.000.000-00" required maxLength={14} className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1.5">Celular</label>
-                  <input
-                    type="text"
-                    value={phone}
-                    onChange={e => setPhone(formatPhone(e.target.value))}
-                    placeholder="(00) 00000-0000"
-                    required
-                    maxLength={15}
-                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono"
-                  />
+                  <input type="text" value={phone} onChange={e => setPhone(formatPhone(e.target.value))} placeholder="(00) 00000-0000" required maxLength={15} className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono" />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">CEP</label>
-                  <input
-                    type="text"
-                    value={cep}
-                    onChange={e => handleCepChange(e.target.value)}
-                    placeholder="00000-000"
-                    required
-                    maxLength={9}
-                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono"
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Rua</label>
-                  <input
-                    type="text"
-                    value={street}
-                    onChange={e => setStreet(e.target.value)}
-                    placeholder="Rua, Avenida..."
-                    required
-                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Número</label>
-                  <input
-                    type="text"
-                    value={addressNumber}
-                    onChange={e => setAddressNumber(e.target.value.replace(/\D/g, '').substring(0, 6))}
-                    placeholder="123"
-                    required
-                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Bairro</label>
-                  <input
-                    type="text"
-                    value={neighborhood}
-                    onChange={e => setNeighborhood(e.target.value)}
-                    placeholder="Bairro"
-                    required
-                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all"
-                  />
-                </div>
+                {paymentMethod === 'credit_card' && (<>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">CEP</label>
+                    <input type="text" value={cep} onChange={e => handleCepChange(e.target.value)} placeholder="00000-000" required maxLength={9} className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Rua</label>
+                    <input type="text" value={street} onChange={e => setStreet(e.target.value)} placeholder="Rua, Avenida..." required className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Número</label>
+                    <input type="text" value={addressNumber} onChange={e => setAddressNumber(e.target.value.replace(/\D/g, '').substring(0, 6))} placeholder="123" required className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Bairro</label>
+                    <input type="text" value={neighborhood} onChange={e => setNeighborhood(e.target.value)} placeholder="Bairro" required className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all" />
+                  </div>
+                </>)}
               </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold text-lg hover:from-purple-500 hover:to-pink-500 transition-all duration-200 shadow-lg shadow-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+              <button type="submit" disabled={loading}
+                className={`w-full py-3.5 rounded-xl text-white font-semibold text-lg transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${paymentMethod === 'pix' ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 shadow-green-500/20' : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 shadow-purple-500/20'}`}>
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>
                     Processando...
                   </span>
-                ) : (
-                  `Comprar ${quantity} código${quantity > 1 ? 's' : ''} — R$ ${(quantity * 29.9).toFixed(2).replace('.', ',')}`
-                )}
+                ) : paymentMethod === 'pix'
+                  ? `📱 Gerar PIX — R$ ${(quantity * 29.9).toFixed(2).replace('.', ',')}`
+                  : `💳 Comprar ${quantity} código${quantity > 1 ? 's' : ''} — R$ ${(quantity * 29.9).toFixed(2).replace('.', ',')}`}
               </button>
             </form>
+            )}
 
             {/* Códigos comprados */}
             {paymentStatus?.access_codes && paymentStatus.access_codes.length > 0 && (
