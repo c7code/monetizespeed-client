@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from './store/auth'
+import { apiUrl } from './config/api'
 import ChatButton from './components/ChatButton'
 import logoImg from './assets/TUDO NO AZUL-06.png'
 import logoMobileImg from './assets/TUDO NO AZUL-06 (1).png'
@@ -86,10 +87,26 @@ const icons = {
 }
 
 export default function App() {
-  const { logout, token, user } = useAuth()
+  const { logout, token, user, updatePlanStatus } = useAuth()
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  // Sincronizar plan_status com o banco ao carregar o app
+  useEffect(() => {
+    if (token && user) {
+      fetch(apiUrl('/payments/status'), {
+        headers: { 'Authorization': `Bearer ${token}` },
+      })
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (data && data.plan_status && data.plan_status !== user.plan_status) {
+            updatePlanStatus(data.plan_status, data.plan_expires_at)
+          }
+        })
+        .catch(() => {})
+    }
+  }, [token])
 
   // Rotas premium (só funcionam com plano ativo)
   const premiumPaths = [

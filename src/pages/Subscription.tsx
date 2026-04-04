@@ -91,6 +91,8 @@ export default function Subscription() {
       if (res.ok) {
         const data = await res.json()
         setPaymentStatus(data)
+        // Sempre sincronizar o auth store com o status real do banco
+        updatePlanStatus(data.plan_status, data.plan_expires_at)
       }
     } catch (e) {
       console.error('Erro ao buscar status:', e)
