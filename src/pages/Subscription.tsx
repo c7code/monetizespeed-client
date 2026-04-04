@@ -338,7 +338,7 @@ export default function Subscription() {
             )}
             {!isActive && !statusLoading && (
               <p className="text-sm text-gray-400 mt-2 ml-6">
-                Assine por <span className="text-cyan-400 font-bold">R$ 29,90/mês</span> para ter acesso completo
+                Assine por <span className="text-cyan-400 font-bold">R$ 1,99/mês</span> para ter acesso completo
               </p>
             )}
           </div>
@@ -392,7 +392,7 @@ export default function Subscription() {
               <h2 className="text-xl font-bold text-white mb-2">Plano Mensal</h2>
               <div className="flex items-baseline gap-1">
                 <span className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
-                  R$ 29,90
+                  R$ 1,99
                 </span>
                 <span className="text-gray-400">/mês</span>
               </div>
@@ -528,7 +528,7 @@ export default function Subscription() {
                     <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>
                     Processando...
                   </span>
-                ) : paymentMethod === 'pix' ? '📱 Gerar PIX — R$ 29,90/mês' : '💳 Assinar por R$ 29,90/mês'}
+                ) : paymentMethod === 'pix' ? '📱 Gerar PIX — R$ 1,99/mês' : '💳 Assinar por R$ 1,99/mês'}
               </button>
               <p className="text-xs text-gray-500 text-center">🔒 Pagamento seguro via Pagar.me. Cancele quando quiser.</p>
             </form>
@@ -557,7 +557,7 @@ export default function Subscription() {
                     <button key={q} type="button" onClick={() => setQuantity(q)}
                       className={`py-3 rounded-xl text-center font-semibold transition-all duration-200 ${quantity === q ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/20' : 'bg-dark-bg border border-dark-border text-gray-400 hover:border-cyan-500/50 hover:text-white'}`}>
                       <span className="text-lg">{q}x</span>
-                      <span className="block text-xs mt-0.5 opacity-70">R$ {((q * 29.9)).toFixed(2).replace('.', ',')}</span>
+                      <span className="block text-xs mt-0.5 opacity-70">R$ {((q * 1.99)).toFixed(2).replace('.', ',')}</span>
                     </button>
                   ))}
                 </div>
@@ -566,7 +566,7 @@ export default function Subscription() {
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">Total:</span>
                   <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
-                    R$ {(quantity * 29.9).toFixed(2).replace('.', ',')}
+                    R$ {(quantity * 1.99).toFixed(2).replace('.', ',')}
                   </span>
                 </div>
               </div>
@@ -638,8 +638,8 @@ export default function Subscription() {
                     Processando...
                   </span>
                 ) : paymentMethod === 'pix'
-                  ? `📱 Gerar PIX — R$ ${(quantity * 29.9).toFixed(2).replace('.', ',')}`
-                  : `💳 Comprar ${quantity} código${quantity > 1 ? 's' : ''} — R$ ${(quantity * 29.9).toFixed(2).replace('.', ',')}`}
+                  ? `📱 Gerar PIX — R$ ${(quantity * 1.99).toFixed(2).replace('.', ',')}`
+                  : `💳 Comprar ${quantity} código${quantity > 1 ? 's' : ''} — R$ ${(quantity * 1.99).toFixed(2).replace('.', ',')}`}
               </button>
             </form>
             )}
