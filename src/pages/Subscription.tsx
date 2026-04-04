@@ -33,6 +33,11 @@ export default function Subscription() {
   const [cpf, setCpf] = useState('')
   const [phone, setPhone] = useState('')
   const [cep, setCep] = useState('')
+  const [street, setStreet] = useState('')
+  const [addressNumber, setAddressNumber] = useState('')
+  const [neighborhood, setNeighborhood] = useState('')
+  const [city, setCity] = useState('')
+  const [addressState, setAddressState] = useState('')
 
   // Buy codes form
   const [quantity, setQuantity] = useState(1)
@@ -93,6 +98,36 @@ export default function Subscription() {
     return digits
   }
 
+  async function handleCepChange(value: string) {
+    const formatted = formatCep(value)
+    setCep(formatted)
+    const digits = formatted.replace(/\D/g, '')
+    if (digits.length === 8) {
+      try {
+        const res = await fetch(`https://viacep.com.br/ws/${digits}/json/`)
+        const data = await res.json()
+        if (!data.erro) {
+          setStreet(data.logradouro || '')
+          setNeighborhood(data.bairro || '')
+          setCity(data.localidade || '')
+          setAddressState(data.uf || '')
+        }
+      } catch {
+        // ViaCEP offline, usuário preenche manualmente
+      }
+    }
+  }
+
+  function getBillingAddress() {
+    return {
+      line_1: `${addressNumber}, ${street}, ${neighborhood}`,
+      zip_code: cep.replace(/\D/g, ''),
+      city: city,
+      state: addressState,
+      country: 'BR',
+    }
+  }
+
   // Retorna os dados do cartão para o backend tokenizar
   function getCardData() {
     return {
@@ -123,13 +158,7 @@ export default function Subscription() {
           document: cpf.replace(/\D/g, ''),
           name: cardName,
           phone: cleanPhone,
-          billing_address: {
-            line_1: '1, Rua do Cliente, Bairro',
-            zip_code: cep.replace(/\D/g, ''),
-            city: 'Cidade',
-            state: 'SP',
-            country: 'BR',
-          },
+          billing_address: getBillingAddress(),
         }),
       })
 
@@ -166,13 +195,7 @@ export default function Subscription() {
           name: cardName,
           quantity,
           phone: cleanPhone,
-          billing_address: {
-            line_1: '1, Rua do Cliente, Bairro',
-            zip_code: cep.replace(/\D/g, ''),
-            city: 'Cidade',
-            state: 'SP',
-            country: 'BR',
-          },
+          billing_address: getBillingAddress(),
         }),
       })
 
@@ -437,11 +460,44 @@ export default function Subscription() {
                   <input
                     type="text"
                     value={cep}
-                    onChange={e => setCep(formatCep(e.target.value))}
+                    onChange={e => handleCepChange(e.target.value)}
                     placeholder="00000-000"
                     required
                     maxLength={9}
                     className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Rua</label>
+                  <input
+                    type="text"
+                    value={street}
+                    onChange={e => setStreet(e.target.value)}
+                    placeholder="Rua, Avenida..."
+                    required
+                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Número</label>
+                  <input
+                    type="text"
+                    value={addressNumber}
+                    onChange={e => setAddressNumber(e.target.value.replace(/\D/g, '').substring(0, 6))}
+                    placeholder="123"
+                    required
+                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Bairro</label>
+                  <input
+                    type="text"
+                    value={neighborhood}
+                    onChange={e => setNeighborhood(e.target.value)}
+                    placeholder="Bairro"
+                    required
+                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all"
                   />
                 </div>
               </div>
@@ -595,11 +651,44 @@ export default function Subscription() {
                   <input
                     type="text"
                     value={cep}
-                    onChange={e => setCep(formatCep(e.target.value))}
+                    onChange={e => handleCepChange(e.target.value)}
                     placeholder="00000-000"
                     required
                     maxLength={9}
                     className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Rua</label>
+                  <input
+                    type="text"
+                    value={street}
+                    onChange={e => setStreet(e.target.value)}
+                    placeholder="Rua, Avenida..."
+                    required
+                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Número</label>
+                  <input
+                    type="text"
+                    value={addressNumber}
+                    onChange={e => setAddressNumber(e.target.value.replace(/\D/g, '').substring(0, 6))}
+                    placeholder="123"
+                    required
+                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Bairro</label>
+                  <input
+                    type="text"
+                    value={neighborhood}
+                    onChange={e => setNeighborhood(e.target.value)}
+                    placeholder="Bairro"
+                    required
+                    className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border text-white placeholder-gray-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all"
                   />
                 </div>
               </div>
