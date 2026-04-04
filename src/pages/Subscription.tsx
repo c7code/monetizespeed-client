@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../store/auth'
 import { apiUrl } from '../config/api'
 
@@ -51,6 +51,36 @@ export default function Subscription() {
   useEffect(() => {
     fetchStatus()
   }, [])
+
+  // Polling: verificar status a cada 5s enquanto QR Code PIX estiver na tela
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    if (pixData) {
+      pollingRef.current = setInterval(async () => {
+        try {
+          const res = await fetch(apiUrl('/payments/status'), {
+            headers: { 'Authorization': `Bearer ${token}` },
+          })
+          const data = await res.json()
+          if (data.plan_status === 'active') {
+            // PIX foi pago! Atualizar tudo
+            setPixData(null)
+            setMessage({ type: 'success', text: 'Pagamento PIX confirmado! Seu plano já está ativo. 🎉' })
+            updatePlanStatus(data.plan_status, data.plan_expires_at)
+            setPaymentStatus(data)
+            if (pollingRef.current) clearInterval(pollingRef.current)
+          }
+        } catch {
+          // silenciar erro de polling
+        }
+      }, 5000)
+    }
+
+    return () => {
+      if (pollingRef.current) clearInterval(pollingRef.current)
+    }
+  }, [pixData])
 
   async function fetchStatus() {
     try {
