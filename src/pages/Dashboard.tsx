@@ -175,13 +175,13 @@ export default function Dashboard() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 mt-6">
-              <Link to="/transactions" className="flex-1 flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white font-medium px-5 py-3 rounded-xl transition-all text-sm">
+              <Link to="/app/transactions" className="flex-1 flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white font-medium px-5 py-3 rounded-xl transition-all text-sm">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                 </svg>
                 Nova Entrada
               </Link>
-              <Link to="/transactions" className="flex-1 flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white font-medium px-5 py-3 rounded-xl transition-all text-sm">
+              <Link to="/app/transactions" className="flex-1 flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white font-medium px-5 py-3 rounded-xl transition-all text-sm">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
                 </svg>
@@ -295,7 +295,7 @@ export default function Dashboard() {
       <div className="dark-card p-6">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold text-gray-100">Transações Recentes</h3>
-          <Link to="/transactions" className="text-sm text-blue-400 hover:text-blue-300 font-medium transition-colors">
+          <Link to="/app/transactions" className="text-sm text-blue-400 hover:text-blue-300 font-medium transition-colors">
             Ver todas
           </Link>
         </div>
