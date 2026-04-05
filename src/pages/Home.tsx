@@ -22,6 +22,7 @@ export default function Home() {
                         <a href="#recursos" className="hover:text-white transition-colors">Recursos</a>
                         <a href="#whatsapp" className="hover:text-white transition-colors">WhatsApp</a>
                         <a href="#agenda" className="hover:text-white transition-colors">Agenda</a>
+                        <a href="#precos" className="hover:text-white transition-colors">Preços</a>
                         <a href="#depoimentos" className="hover:text-white transition-colors">Depoimentos</a>
                         <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
                     </div>
@@ -386,6 +387,74 @@ export default function Home() {
                                 )}
                             </div>
                         ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ===== PREÇOS ===== */}
+            <section id="precos" className="py-24 border-t border-white/5">
+                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16">
+                        <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold rounded-full px-4 py-1.5 mb-6">
+                            💎 Plano Premium
+                        </div>
+                        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Tudo que você precisa por um preço justo</h2>
+                        <p className="text-zinc-400 text-lg">Sem surpresas, sem taxas escondidas. Cancele quando quiser.</p>
+                    </div>
+
+                    <div className="max-w-lg mx-auto">
+                        <div className="relative bg-[#121214] border-2 border-blue-500/30 rounded-3xl p-8 sm:p-10 overflow-hidden">
+                            {/* Glow */}
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[200px] bg-blue-600/15 rounded-full blur-[80px] -translate-y-1/2 pointer-events-none" />
+
+                            {/* Badge */}
+                            <div className="absolute top-0 right-8 bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-xs font-bold px-4 py-1.5 rounded-b-lg">
+                                MAIS POPULAR
+                            </div>
+
+                            <div className="relative z-10">
+                                <h3 className="text-xl font-bold text-white mb-2">Plano Premium</h3>
+                                <p className="text-zinc-400 text-sm mb-8">Acesso completo a todos os recursos</p>
+
+                                <div className="flex items-end gap-2 mb-8">
+                                    <span className="text-5xl sm:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">R$ 29,90</span>
+                                    <span className="text-zinc-500 text-lg mb-2">/mês</span>
+                                </div>
+
+                                <div className="space-y-4 mb-10">
+                                    {[
+                                        'Transações ilimitadas',
+                                        'Integração WhatsApp com IA',
+                                        'Contas a Pagar e Receber',
+                                        'Carteiras e Cartões de Crédito',
+                                        'Orçamentos por categoria',
+                                        'Relatórios e Estatísticas',
+                                        'Metas financeiras',
+                                        'Registro via áudio e foto',
+                                        'Categorias personalizadas',
+                                        'Suporte prioritário',
+                                    ].map((feature, i) => (
+                                        <div key={i} className="flex items-center gap-3">
+                                            <div className="w-5 h-5 rounded-full bg-blue-500/15 flex items-center justify-center flex-shrink-0">
+                                                <svg className="w-3 h-3 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                                </svg>
+                                            </div>
+                                            <span className="text-sm text-zinc-300">{feature}</span>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <Link
+                                    to="/register"
+                                    className="w-full inline-flex justify-center items-center bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold rounded-xl px-6 py-4 text-lg hover:from-blue-500 hover:to-cyan-500 transition-all shadow-[0_0_30px_rgba(37,99,235,0.4)] hover:shadow-[0_0_40px_rgba(37,99,235,0.6)]"
+                                >
+                                    Começar agora
+                                </Link>
+
+                                <p className="text-center text-xs text-zinc-600 mt-4">Cancele a qualquer momento. Sem fidelidade.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>

@@ -589,7 +589,7 @@ export default function Subscription() {
                     <button key={q} type="button" onClick={() => setQuantity(q)}
                       className={`py-3 rounded-xl text-center font-semibold transition-all duration-200 ${quantity === q ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/20' : 'bg-dark-bg border border-dark-border text-gray-400 hover:border-cyan-500/50 hover:text-white'}`}>
                       <span className="text-lg">{q}x</span>
-                      <span className="block text-xs mt-0.5 opacity-70">R$ {((q * 1.99)).toFixed(2).replace('.', ',')}</span>
+                      <span className="block text-xs mt-0.5 opacity-70">R$ {((q * 29.90)).toFixed(2).replace('.', ',')}</span>
                     </button>
                   ))}
                 </div>
@@ -598,7 +598,7 @@ export default function Subscription() {
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">Total:</span>
                   <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
-                    R$ {(quantity * 1.99).toFixed(2).replace('.', ',')}
+                    R$ {(quantity * 29.90).toFixed(2).replace('.', ',')}
                   </span>
                 </div>
               </div>
@@ -670,8 +670,8 @@ export default function Subscription() {
                     Processando...
                   </span>
                 ) : paymentMethod === 'pix'
-                  ? `📱 Gerar PIX — R$ ${(quantity * 1.99).toFixed(2).replace('.', ',')}`
-                  : `💳 Comprar ${quantity} código${quantity > 1 ? 's' : ''} — R$ ${(quantity * 1.99).toFixed(2).replace('.', ',')}`}
+                  ? `📱 Gerar PIX — R$ ${(quantity * 29.90).toFixed(2).replace('.', ',')}`
+                  : `💳 Comprar ${quantity} código${quantity > 1 ? 's' : ''} — R$ ${(quantity * 29.90).toFixed(2).replace('.', ',')}`}
               </button>
             </form>
             )}
