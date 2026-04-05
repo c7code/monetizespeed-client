@@ -3,7 +3,7 @@ import { useData, Transaction } from '../store/data'
 import Chat from './Chat'
 
 export default function Transactions() {
-  const { transactions, deleteTransaction, addTransaction, updateTransaction } = useData()
+  const { transactions, deleteTransaction, addTransaction, updateTransaction, allCategories } = useData()
   const [chatOpen, setChatOpen] = useState(false)
   const [filter, setFilter] = useState<'all' | 'expense' | 'income' | 'paid' | 'received' | 'pending_payment' | 'pending_receipt'>('all')
   const [search, setSearch] = useState('')
@@ -210,14 +210,7 @@ export default function Transactions() {
                             className="bg-dark-card border border-dark-border rounded-lg px-3 py-2 text-sm text-gray-200 focus:ring-2 focus:ring-blue-500"
                           >
                             <option value="">Selecione Categoria</option>
-                            <option value="Alimentação">Alimentação</option>
-                            <option value="Transporte">Transporte</option>
-                            <option value="Moradia">Moradia</option>
-                            <option value="Lazer">Lazer</option>
-                            <option value="Saúde">Saúde</option>
-                            <option value="Investimentos">Investimentos</option>
-                            <option value="Salário">Salário</option>
-                            <option value="Outros">Outros</option>
+                            {allCategories.map(c => <option key={c} value={c}>{c}</option>)}
                           </select>
                           <select
                             value={editForm.status || (editForm.type === 'expense' ? 'paid' : 'received')}

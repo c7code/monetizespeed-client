@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useData, presetCategories } from '../store/data'
+import { useData } from '../store/data'
 
 // Ícones e cores por categoria
 const categoryConfig: Record<string, { icon: JSX.Element; color: string; bgColor: string }> = {
@@ -73,7 +73,7 @@ function getCategoryConfig(category: string) {
 }
 
 export default function Budgets() {
-  const { budgets, transactions, addBudget, updateBudget, deleteBudget } = useData()
+  const { budgets, transactions, addBudget, updateBudget, deleteBudget, allCategories } = useData()
   const [category, setCategory] = useState('')
   const [limit, setLimit] = useState<number | string>('')
   const [msg, setMsg] = useState('')
@@ -120,7 +120,7 @@ export default function Budgets() {
               className="w-full bg-dark-surface text-gray-200 border border-dark-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             >
               <option value="">Selecione uma categoria</option>
-              {presetCategories.map(c => <option key={c} value={c}>{c}</option>)}
+              {allCategories.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
           <div className="flex-1 w-full md:w-auto">
@@ -180,7 +180,7 @@ export default function Budgets() {
                     value={editCategory}
                     onChange={e => setEditCategory(e.target.value)}
                   >
-                    {presetCategories.map(c => <option key={c} value={c}>{c}</option>)}
+                    {allCategories.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">R$</span>

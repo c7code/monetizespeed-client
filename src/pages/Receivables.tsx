@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { useData, Receivable, Wallet, presetCategories } from '../store/data'
+import { useData, Receivable, Wallet } from '../store/data'
 import { icons } from '../App'
 
 const months = [
@@ -8,7 +8,7 @@ const months = [
 ]
 
 export default function Receivables() {
-    const { receivables, addReceivable, updateReceivable, deleteReceivable, receiveBill, wallets } = useData()
+    const { receivables, addReceivable, updateReceivable, deleteReceivable, receiveBill, wallets, allCategories } = useData()
 
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth())
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
@@ -259,7 +259,7 @@ export default function Receivables() {
                                 className="w-full px-4 py-2.5 bg-dark-surface text-gray-200 border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                             >
                                 <option value="">Todas as Categorias</option>
-                                {presetCategories.map(c => <option key={c} value={c}>{c}</option>)}
+                                {allCategories.map(c => <option key={c} value={c}>{c}</option>)}
                             </select>
                         </div>
 
@@ -473,7 +473,7 @@ export default function Receivables() {
                                         className="w-full bg-gray-800 border-gray-700 rounded-lg p-2.5 text-white"
                                     >
                                         <option value="">Selecione</option>
-                                        {presetCategories.map(c => <option key={c} value={c}>{c}</option>)}
+                                        {allCategories.map(c => <option key={c} value={c}>{c}</option>)}
                                     </select>
                                 </div>
 

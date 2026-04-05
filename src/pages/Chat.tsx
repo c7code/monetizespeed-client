@@ -131,7 +131,7 @@ type ChatProps = {
 }
 
 export default function Chat({ showHeader = true }: ChatProps) {
-  const { addTransaction } = useData()
+  const { addTransaction, allCategories } = useData()
   const { token } = useAuth()
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -170,7 +170,7 @@ export default function Chat({ showHeader = true }: ChatProps) {
       try {
         // Determinar categoria válida
         let finalCategory = data.category;
-        if (!presetCategories.includes(finalCategory)) {
+        if (!allCategories.includes(finalCategory)) {
           finalCategory = 'Outros'; // Fallback
         }
 
@@ -331,7 +331,7 @@ export default function Chat({ showHeader = true }: ChatProps) {
 
       if (data && data.amount) {
         let finalCategory = data.category
-        if (!presetCategories.includes(finalCategory)) {
+        if (!allCategories.includes(finalCategory)) {
           finalCategory = 'Outros'
         }
 

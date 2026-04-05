@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { useData, Bill, Wallet, presetCategories } from '../store/data'
+import { useData, Bill, Wallet } from '../store/data'
 import { icons } from '../App'
 
 const months = [
@@ -8,7 +8,7 @@ const months = [
 ]
 
 export default function Bills() {
-    const { bills, addBill, updateBill, deleteBill, payBill, wallets } = useData()
+    const { bills, addBill, updateBill, deleteBill, payBill, wallets, allCategories } = useData()
 
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth())
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
@@ -268,7 +268,7 @@ export default function Bills() {
                                 className="w-full px-4 py-2.5 bg-dark-surface text-gray-200 border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                             >
                                 <option value="">Todas as Categorias</option>
-                                {presetCategories.map(c => <option key={c} value={c}>{c}</option>)}
+                                {allCategories.map(c => <option key={c} value={c}>{c}</option>)}
                             </select>
                         </div>
 
@@ -538,7 +538,7 @@ export default function Bills() {
                                         className="w-full bg-gray-800 border-gray-700 rounded-lg p-2.5 text-white"
                                     >
                                         <option value="">Selecione</option>
-                                        {presetCategories.map(c => <option key={c} value={c}>{c}</option>)}
+                                        {allCategories.map(c => <option key={c} value={c}>{c}</option>)}
                                     </select>
                                 </div>
 

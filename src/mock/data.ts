@@ -1,6 +1,10 @@
 import type { Budget, Goal, Transaction } from '../store/data'
 
-export const categories = ['Alimentação', 'Transporte', 'Lazer', 'Moradia', 'Salário', 'Saúde']
+export const categories = [
+  'Alimentação', 'Transporte', 'Moradia', 'Saúde', 'Educação',
+  'Lazer', 'Mercado', 'Contas', 'Investimentos', 'Salário',
+  'Vendas', 'Freela', 'Outros'
+]
 
 export const initialTransactions: Transaction[] = [
   { id: 't1', type: 'income', category: 'Salário', amount: 4500, date: new Date().toISOString(), status: 'received', description: 'Salário mensal' },

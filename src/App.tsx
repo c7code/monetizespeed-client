@@ -126,12 +126,11 @@ export default function App() {
     { to: '/app/budgets', label: 'Orçamentos', icon: icons.budgets, premium: false },
     { to: '/app/reports', label: 'Estatísticas', icon: icons.reports, premium: false },
     { to: '/app/goals', label: 'Metas', icon: icons.goals, premium: false },
+    { to: '/app/categories', label: 'Categorias', icon: (<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>), premium: false },
     { to: '/app/credit-cards', label: 'Cartões', icon: icons.creditCards, premium: true },
     { to: '/app/wallets', label: 'Carteiras', icon: icons.wallets, premium: true },
     { to: '/app/bills', label: 'Contas a Pagar', icon: icons.bills, premium: true },
     { to: '/app/receivables', label: 'Contas a Receber', icon: icons.receivables, premium: true },
-    { to: '/app/bank-import', label: 'Integração Bancos', icon: icons.bankImport, premium: true },
-    { to: '/app/chat', label: 'Chat', icon: icons.chat, premium: true },
     { to: '/app/whatsapp', label: 'WhatsApp', icon: icons.whatsapp, premium: true },
     { to: '/app/subscription', label: 'Assinatura', icon: icons.subscription, premium: false },
   ]

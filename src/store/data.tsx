@@ -43,6 +43,8 @@ export type Receivable = {
   received_date?: string
 }
 
+export type CustomCategory = { id: string, name: string, type: string, created_at?: string }
+
 type DataContextType = {
   transactions: Transaction[]
   budgets: Budget[]
@@ -51,6 +53,11 @@ type DataContextType = {
   wallets: Wallet[]
   streamings: Streaming[]
   loading: boolean
+  customCategories: CustomCategory[]
+  allCategories: string[]
+  addCategory: (name: string, type?: string) => Promise<void>
+  updateCategory: (id: string, name: string, type?: string) => Promise<void>
+  deleteCategory: (id: string) => Promise<void>
   addTransaction: (t: Omit<Transaction, 'id'>) => Promise<void>
   updateTransaction: (id: string, t: Partial<Transaction>) => Promise<void>
   deleteTransaction: (id: string) => Promise<void>
@@ -90,6 +97,11 @@ const DataContext = createContext<DataContextType>({
   wallets: [],
   streamings: [],
   loading: false,
+  customCategories: [],
+  allCategories: categories,
+  addCategory: async () => { },
+  updateCategory: async () => { },
+  deleteCategory: async () => { },
   addTransaction: async () => { },
   updateTransaction: async () => { },
   deleteTransaction: async () => { },
@@ -150,6 +162,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [streamings, setStreamings] = useState<Streaming[]>([])
   const [bills, setBills] = useState<Bill[]>([])
   const [receivables, setReceivables] = useState<Receivable[]>([])
+  const [customCategories, setCustomCategories] = useState<CustomCategory[]>([])
   const [loading, setLoading] = useState(false)
 
   const loadData = async () => {
@@ -161,6 +174,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       setWallets([])
       setStreamings([])
       setBills([])
+      setCustomCategories([])
       return
     }
 
@@ -176,6 +190,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         apiCall('/streamings'),
         apiCall('/bills'),
         apiCall('/receivables'),
+        apiCall('/categories'),
       ])
 
       // Processar transações
@@ -275,6 +290,14 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       } else {
         console.error('Erro ao carregar contas a receber:', results[7].reason)
         setReceivables([])
+      }
+
+      // Processar categorias customizadas
+      if (results[8].status === 'fulfilled') {
+        setCustomCategories(results[8].value.map((c: any) => ({ ...c, id: c.id.toString() })))
+      } else {
+        console.error('Erro ao carregar categorias:', results[8].reason)
+        setCustomCategories([])
       }
     } catch (error) {
       console.error('Erro ao carregar dados:', error)
@@ -492,6 +515,36 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     await loadData()
   }
 
+  // Categorias: preset + custom, sem duplicatas, ordenadas
+  const allCategories = useMemo(() => {
+    const customNames = customCategories.map(c => c.name)
+    const merged = [...new Set([...categories, ...customNames])]
+    return merged.sort((a, b) => a.localeCompare(b, 'pt-BR'))
+  }, [customCategories])
+
+  async function addCategory(name: string, type?: string) {
+    await apiCall('/categories', {
+      method: 'POST',
+      body: JSON.stringify({ name, type: type || 'both' }),
+    })
+    await loadData()
+  }
+
+  async function updateCategory(id: string, name: string, type?: string) {
+    await apiCall(`/categories/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ name, type: type || 'both' }),
+    })
+    await loadData()
+  }
+
+  async function deleteCategory(id: string) {
+    await apiCall(`/categories/${id}`, {
+      method: 'DELETE',
+    })
+    await loadData()
+  }
+
   const value = useMemo(() => ({
     transactions,
     budgets,
@@ -500,6 +553,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     wallets,
     streamings,
     loading,
+    customCategories,
+    allCategories,
+    addCategory,
+    updateCategory,
+    deleteCategory,
     addTransaction,
     updateTransaction,
     deleteTransaction,
@@ -522,7 +580,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     addBill,
     updateBill,
     deleteBill,
-
     payBill,
     receivables,
     addReceivable,
@@ -530,7 +587,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     deleteReceivable,
     receiveBill,
     refresh: loadData
-  }), [transactions, budgets, goals, creditCards, wallets, streamings, bills, receivables, loading, token])
+  }), [transactions, budgets, goals, creditCards, wallets, streamings, bills, receivables, customCategories, allCategories, loading, token])
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>
 }
