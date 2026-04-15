@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../store/auth'
-import logo from '../assets/TUDO NO AZUL-03.png'
+import logo from '../assets/TUDO NO AZUL-06.png'
 
 export default function Register() {
   const { register } = useAuth()

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { apiUrl } from '../config/api'
-import logo from '../assets/TUDO NO AZUL-03.png'
+import logo from '../assets/TUDO NO AZUL-06.png'
 
 export default function ForgotPassword() {
     const [email, setEmail] = useState('')

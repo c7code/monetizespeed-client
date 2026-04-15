@@ -7,6 +7,7 @@ type UserType = {
   name?: string
   plan_status?: string
   plan_expires_at?: string | null
+  is_admin?: boolean
 }
 
 type AuthContextType = { 

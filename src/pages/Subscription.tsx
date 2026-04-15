@@ -2,6 +2,26 @@ import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../store/auth'
 import { apiUrl } from '../config/api'
 
+type Plan = {
+  id: number
+  name: string
+  description: string | null
+  billing_type: 'monthly' | 'yearly'
+  status: 'active' | 'inactive'
+  price_card: number
+  price_pix: number
+  promo_price_card: number | null
+  promo_price_pix: number | null
+}
+
+type CouponInfo = {
+  id: number
+  code: string
+  discount_type: 'percentage' | 'fixed'
+  discount_value: number
+  applies_to: 'monthly' | 'yearly' | 'both'
+}
+
 type PaymentStatus = {
   plan_status: string
   plan_expires_at: string | null
@@ -17,6 +37,18 @@ type PaymentStatus = {
 
 type Tab = 'subscribe' | 'buy-codes' | 'redeem'
 
+function formatCurrency(cents: number): string {
+  return (cents / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })
+}
+
+function calculateDiscount(price: number, coupon: CouponInfo | null): number {
+  if (!coupon) return price
+  if (coupon.discount_type === 'percentage') {
+    return Math.round(price * (1 - coupon.discount_value / 100))
+  }
+  return Math.max(0, price - coupon.discount_value)
+}
+
 export default function Subscription() {
   const { token, user, updatePlanStatus } = useAuth()
   const [activeTab, setActiveTab] = useState<Tab>('subscribe')
@@ -24,6 +56,16 @@ export default function Subscription() {
   const [statusLoading, setStatusLoading] = useState(true)
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(null)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+
+  // Plans
+  const [plans, setPlans] = useState<Plan[]>([])
+  const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null)
+
+  // Coupon
+  const [couponCode, setCouponCode] = useState('')
+  const [validatedCoupon, setValidatedCoupon] = useState<CouponInfo | null>(null)
+  const [couponLoading, setCouponLoading] = useState(false)
+  const [couponError, setCouponError] = useState('')
 
   // Subscribe form
   const [cardNumber, setCardNumber] = useState('')
@@ -48,9 +90,44 @@ export default function Subscription() {
   // Redeem form
   const [redeemCode, setRedeemCode] = useState('')
 
+  const selectedPlan = plans.find(p => p.id === selectedPlanId)
+
+  // Get price based on selected plan and payment method
+  const getBasePrice = (): number => {
+    if (!selectedPlan) return 2990
+    if (paymentMethod === 'pix') {
+      return selectedPlan.promo_price_pix || selectedPlan.price_pix
+    }
+    return selectedPlan.promo_price_card || selectedPlan.price_card
+  }
+
+  const getOriginalPrice = (): number => {
+    if (!selectedPlan) return 2990
+    return paymentMethod === 'pix' ? selectedPlan.price_pix : selectedPlan.price_card
+  }
+
+  const hasPromo = (): boolean => {
+    if (!selectedPlan) return false
+    return paymentMethod === 'pix'
+      ? !!selectedPlan.promo_price_pix
+      : !!selectedPlan.promo_price_card
+  }
+
+  const basePrice = getBasePrice()
+  const finalPrice = calculateDiscount(basePrice, validatedCoupon)
+  const hasCouponDiscount = validatedCoupon && finalPrice < basePrice
+
   useEffect(() => {
     fetchStatus()
+    fetchPlans()
   }, [])
+
+  // Reset coupon when plan changes
+  useEffect(() => {
+    setValidatedCoupon(null)
+    setCouponCode('')
+    setCouponError('')
+  }, [selectedPlanId])
 
   // Polling: verificar status a cada 5s enquanto QR Code PIX estiver na tela
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -64,7 +141,6 @@ export default function Subscription() {
           })
           const data = await res.json()
           if (data.plan_status === 'active') {
-            // PIX foi pago! Atualizar tudo
             setPixData(null)
             setMessage({ type: 'success', text: 'Pagamento PIX confirmado! Seu plano já está ativo. 🎉' })
             updatePlanStatus(data.plan_status, data.plan_expires_at)
@@ -82,6 +158,23 @@ export default function Subscription() {
     }
   }, [pixData])
 
+  async function fetchPlans() {
+    try {
+      const res = await fetch(apiUrl('/plans'))
+      if (res.ok) {
+        const data = await res.json()
+        const activePlans = data.filter((p: Plan) => p.status === 'active')
+        setPlans(activePlans)
+        // Select first plan by default (monthly)
+        const monthly = activePlans.find((p: Plan) => p.billing_type === 'monthly')
+        if (monthly) setSelectedPlanId(monthly.id)
+        else if (activePlans[0]) setSelectedPlanId(activePlans[0].id)
+      }
+    } catch (e) {
+      console.error('Erro ao buscar planos:', e)
+    }
+  }
+
   async function fetchStatus() {
     try {
       setStatusLoading(true)
@@ -91,13 +184,43 @@ export default function Subscription() {
       if (res.ok) {
         const data = await res.json()
         setPaymentStatus(data)
-        // Sempre sincronizar o auth store com o status real do banco
         updatePlanStatus(data.plan_status, data.plan_expires_at)
       }
     } catch (e) {
       console.error('Erro ao buscar status:', e)
     } finally {
       setStatusLoading(false)
+    }
+  }
+
+  async function handleValidateCoupon() {
+    if (!couponCode.trim()) return
+    setCouponLoading(true)
+    setCouponError('')
+    setValidatedCoupon(null)
+
+    try {
+      const res = await fetch(apiUrl('/coupons/validate'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          code: couponCode,
+          billing_type: selectedPlan?.billing_type,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setCouponError(data.error || 'Cupom inválido')
+        return
+      }
+      setValidatedCoupon(data.coupon)
+    } catch {
+      setCouponError('Erro ao validar cupom')
+    } finally {
+      setCouponLoading(false)
     }
   }
 
@@ -127,14 +250,14 @@ export default function Subscription() {
     return digits
   }
 
-  function formatCep(value: string) {
+  function formatCepInput(value: string) {
     const digits = value.replace(/\D/g, '').substring(0, 8)
     if (digits.length > 5) return `${digits.substring(0, 5)}-${digits.substring(5)}`
     return digits
   }
 
   async function handleCepChange(value: string) {
-    const formatted = formatCep(value)
+    const formatted = formatCepInput(value)
     setCep(formatted)
     const digits = formatted.replace(/\D/g, '')
     if (digits.length === 8) {
@@ -163,7 +286,6 @@ export default function Subscription() {
     }
   }
 
-  // Retorna os dados do cartão para o backend tokenizar
   function getCardData() {
     return {
       number: cardNumber.replace(/\s/g, ''),
@@ -190,6 +312,8 @@ export default function Subscription() {
         name: cardName || undefined,
         phone: cleanPhone,
         payment_method: paymentMethod,
+        plan_id: selectedPlanId || undefined,
+        coupon_code: validatedCoupon?.code || undefined,
       }
 
       if (!isPix) {
@@ -209,7 +333,6 @@ export default function Subscription() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Erro ao criar assinatura')
 
-      // Se PIX, mostrar QR Code
       if (data.pix_data?.qr_code || data.pix_data?.qr_code_url) {
         setPixData(data.pix_data)
         setMessage({ type: 'success', text: data.message })
@@ -261,7 +384,6 @@ export default function Subscription() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Erro ao comprar códigos')
 
-      // Se PIX, mostrar QR Code
       if (data.pix_data?.qr_code || data.pix_data?.qr_code_url) {
         setPixData(data.pix_data)
         setMessage({ type: 'success', text: data.message })
@@ -341,6 +463,15 @@ export default function Subscription() {
     { id: 'redeem' as Tab, label: '🔑 Resgatar Código', icon: '🔑' },
   ]
 
+  const features = [
+    'Acesso completo a todas as funcionalidades',
+    'Chat financeiro com IA',
+    'Integração WhatsApp',
+    'Relatórios detalhados',
+    'Gestão de cartões e carteiras',
+    'Contas a pagar e receber',
+  ]
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -368,9 +499,11 @@ export default function Subscription() {
                 Acesso até {new Date(paymentStatus.plan_expires_at).toLocaleDateString('pt-BR')}
               </p>
             )}
-            {!isActive && !statusLoading && (
+            {!isActive && !statusLoading && plans.length > 0 && (
               <p className="text-sm text-gray-400 mt-2 ml-6">
-                Assine por <span className="text-cyan-400 font-bold">R$ 29,90/mês</span> para ter acesso completo
+                Assine a partir de <span className="text-cyan-400 font-bold">R$ {formatCurrency(
+                  Math.min(...plans.map(p => Math.min(p.price_card, p.price_pix)))
+                )}</span> para ter acesso completo
               </p>
             )}
           </div>
@@ -420,32 +553,93 @@ export default function Subscription() {
         {/* === TAB: Assinar Plano === */}
         {activeTab === 'subscribe' && (
           <div>
-            <div className="mb-6">
-              <h2 className="text-xl font-bold text-white mb-2">Plano Mensal</h2>
-              <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
-                  R$ 29,90
-                </span>
-                <span className="text-gray-400">/mês</span>
+            {/* Plan Selector */}
+            {plans.length > 0 && (
+              <div className="mb-6">
+                <h2 className="text-xl font-bold text-white mb-4">Escolha seu plano</h2>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  {plans.map(plan => {
+                    const isSelected = selectedPlanId === plan.id
+                    const priceToShow = paymentMethod === 'pix'
+                      ? (plan.promo_price_pix || plan.price_pix)
+                      : (plan.promo_price_card || plan.price_card)
+                    const hasPromoPrice = paymentMethod === 'pix' ? !!plan.promo_price_pix : !!plan.promo_price_card
+                    const originalPrice = paymentMethod === 'pix' ? plan.price_pix : plan.price_card
+
+                    return (
+                      <button
+                        key={plan.id}
+                        type="button"
+                        onClick={() => setSelectedPlanId(plan.id)}
+                        className={`relative p-5 rounded-2xl border-2 text-left transition-all duration-200 ${
+                          isSelected
+                            ? 'border-cyan-500 bg-cyan-500/10 shadow-lg shadow-cyan-500/10'
+                            : 'border-dark-border bg-dark-bg hover:border-gray-600'
+                        }`}
+                      >
+                        {plan.billing_type === 'yearly' && (
+                          <div className="absolute -top-2.5 right-3 px-2.5 py-0.5 rounded-full text-xs font-bold bg-gradient-to-r from-amber-500 to-orange-500 text-white">
+                            Mais Popular
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between mb-2">
+                          <span className={`text-lg font-bold ${isSelected ? 'text-white' : 'text-gray-300'}`}>
+                            {plan.name}
+                          </span>
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                            plan.billing_type === 'monthly'
+                              ? 'bg-blue-500/15 text-blue-400 border border-blue-500/30'
+                              : 'bg-purple-500/15 text-purple-400 border border-purple-500/30'
+                          }`}>
+                            {plan.billing_type === 'monthly' ? 'Mensal' : 'Anual'}
+                          </span>
+                        </div>
+                        <div className="flex items-baseline gap-1">
+                          <span className={`text-3xl font-extrabold ${isSelected ? 'text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400' : 'text-gray-400'}`}>
+                            R$ {formatCurrency(priceToShow)}
+                          </span>
+                          <span className="text-gray-500 text-sm">
+                            /{plan.billing_type === 'monthly' ? 'mês' : 'ano'}
+                          </span>
+                        </div>
+                        {hasPromoPrice && (
+                          <div className="text-xs text-gray-500 mt-1 line-through">
+                            R$ {formatCurrency(originalPrice)}/{plan.billing_type === 'monthly' ? 'mês' : 'ano'}
+                          </div>
+                        )}
+                        {plan.billing_type === 'yearly' && (
+                          <div className="text-xs text-green-400 mt-1">
+                            ≈ R$ {formatCurrency(Math.round(priceToShow / 12))}/mês
+                          </div>
+                        )}
+                        {plan.description && (
+                          <p className="text-xs text-gray-500 mt-2">{plan.description}</p>
+                        )}
+
+                        {/* Radio indicator */}
+                        <div className={`absolute top-5 right-5 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                          isSelected ? 'border-cyan-400' : 'border-gray-600'
+                        }`}>
+                          {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-cyan-400" />}
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
-              <ul className="mt-4 space-y-2">
-                {[
-                  'Acesso completo a todas as funcionalidades',
-                  'Chat financeiro com IA',
-                  'Integração WhatsApp',
-                  'Relatórios detalhados',
-                  'Gestão de cartões e carteiras',
-                  'Contas a pagar e receber',
-                ].map((item, i) => (
-                  <li key={i} className="flex items-center gap-2 text-sm text-gray-300">
-                    <svg className="w-4 h-4 text-cyan-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            )}
+
+            {/* Features */}
+            <ul className="mb-6 space-y-2">
+              {features.map((item, i) => (
+                <li key={i} className="flex items-center gap-2 text-sm text-gray-300">
+                  <svg className="w-4 h-4 text-cyan-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  {item}
+                </li>
+              ))}
+            </ul>
 
             {/* PIX QR Code Display */}
             {pixData && (
@@ -506,6 +700,89 @@ export default function Subscription() {
                 </button>
               </div>
 
+              {/* Cupom de desconto */}
+              <div className="bg-dark-bg rounded-xl p-4 border border-dark-border">
+                <label className="block text-sm font-medium text-gray-400 mb-2">🏷️ Cupom de Desconto</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={e => {
+                      setCouponCode(e.target.value.toUpperCase())
+                      setCouponError('')
+                      if (!e.target.value) setValidatedCoupon(null)
+                    }}
+                    placeholder="CODIGO"
+                    maxLength={20}
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-dark-card border border-dark-border text-white placeholder-gray-600 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all font-mono tracking-wider text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleValidateCoupon}
+                    disabled={couponLoading || !couponCode.trim()}
+                    className="px-4 py-2.5 rounded-xl bg-purple-600 text-white text-sm font-medium hover:bg-purple-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {couponLoading ? '...' : 'Aplicar'}
+                  </button>
+                </div>
+                {couponError && (
+                  <p className="text-xs text-red-400 mt-2">{couponError}</p>
+                )}
+                {validatedCoupon && (
+                  <div className="mt-2 flex items-center gap-2">
+                    <span className="text-xs text-green-400">
+                      ✅ Cupom aplicado: {validatedCoupon.discount_type === 'percentage'
+                        ? `${validatedCoupon.discount_value}% de desconto`
+                        : `R$ ${formatCurrency(validatedCoupon.discount_value)} de desconto`}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => { setValidatedCoupon(null); setCouponCode('') }}
+                      className="text-xs text-gray-500 hover:text-red-400 transition-colors"
+                    >
+                      ✕ Remover
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Resumo do valor */}
+              <div className="bg-dark-bg rounded-xl p-4 border border-dark-border">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-gray-400 text-sm">Plano {selectedPlan?.name || 'Mensal'}</span>
+                  <span className={`text-sm ${hasPromo() || hasCouponDiscount ? 'line-through text-gray-600' : 'text-gray-300'}`}>
+                    R$ {formatCurrency(getOriginalPrice())}
+                  </span>
+                </div>
+                {hasPromo() && (
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-green-400 text-xs">Preço promocional</span>
+                    <span className={`text-sm ${hasCouponDiscount ? 'line-through text-gray-600' : 'text-green-400'}`}>
+                      R$ {formatCurrency(basePrice)}
+                    </span>
+                  </div>
+                )}
+                {hasCouponDiscount && (
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-purple-400 text-xs">Cupom {validatedCoupon?.code}</span>
+                    <span className="text-purple-400 text-sm">
+                      -{validatedCoupon?.discount_type === 'percentage'
+                        ? `${validatedCoupon.discount_value}%`
+                        : `R$ ${formatCurrency(validatedCoupon!.discount_value)}`}
+                    </span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between pt-2 border-t border-dark-border mt-2">
+                  <span className="text-white font-semibold">Total</span>
+                  <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
+                    R$ {formatCurrency(finalPrice)}
+                    <span className="text-sm text-gray-500 font-normal">
+                      /{selectedPlan?.billing_type === 'yearly' ? 'ano' : 'mês'}
+                    </span>
+                  </span>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {paymentMethod === 'credit_card' && (<>
                   <div className="md:col-span-2">
@@ -560,7 +837,7 @@ export default function Subscription() {
                     <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>
                     Processando...
                   </span>
-                ) : paymentMethod === 'pix' ? '📱 Gerar PIX — R$ 29,90/mês' : '💳 Assinar por R$ 29,90/mês'}
+                ) : paymentMethod === 'pix' ? `📱 Gerar PIX — R$ ${formatCurrency(finalPrice)}` : `💳 Assinar por R$ ${formatCurrency(finalPrice)}`}
               </button>
               <p className="text-xs text-gray-500 text-center">🔒 Pagamento seguro via Pagar.me. Cancele quando quiser.</p>
             </form>

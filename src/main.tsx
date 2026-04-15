@@ -23,6 +23,7 @@ import ResetPassword from './pages/ResetPassword'
 import WhatsApp from './pages/WhatsApp'
 import Subscription from './pages/Subscription'
 import Categories from './pages/Categories'
+import AdminPlans from './pages/AdminPlans'
 import { DataProvider } from './store/data'
 import { useAuth, AuthProvider } from './store/auth'
 
@@ -63,6 +64,7 @@ root.render(
               <Route path="whatsapp" element={<WhatsApp />} />
               <Route path="subscription" element={<Subscription />} />
               <Route path="categories" element={<Categories />} />
+              <Route path="admin/plans" element={<AdminPlans />} />
             </Route>
           </Routes>
         </BrowserRouter>
