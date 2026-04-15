@@ -20,6 +20,7 @@ type CouponInfo = {
   discount_type: 'percentage' | 'fixed'
   discount_value: number
   applies_to: 'monthly' | 'yearly' | 'both'
+  duration_months: number | null
 }
 
 type PaymentStatus = {
@@ -735,11 +736,14 @@ export default function Subscription() {
                   <p className="text-xs text-red-400 mt-2">{couponError}</p>
                 )}
                 {validatedCoupon && (
-                  <div className="mt-2 flex items-center gap-2">
+                  <div className="mt-2 flex items-center gap-2 flex-wrap">
                     <span className="text-xs text-green-400">
                       ✅ Cupom aplicado: {validatedCoupon.discount_type === 'percentage'
                         ? `${validatedCoupon.discount_value}% de desconto`
                         : `R$ ${formatCurrency(validatedCoupon.discount_value)} de desconto`}
+                      {validatedCoupon.duration_months
+                        ? ` por ${validatedCoupon.duration_months} ${validatedCoupon.duration_months === 1 ? 'mês' : 'meses'}`
+                        : ''}
                     </span>
                     <button
                       type="button"

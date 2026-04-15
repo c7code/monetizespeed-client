@@ -24,11 +24,12 @@ type Coupon = {
   applies_to: 'monthly' | 'yearly' | 'both'
   status: 'active' | 'inactive'
   valid_until: string | null
+  duration_months: number | null
   created_at: string
   updated_at: string
 }
 
-type Tab = 'plans' | 'coupons'
+type Tab = 'plans' | 'coupons' | 'codes'
 
 function formatCurrency(cents: number): string {
   return (cents / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })
@@ -69,11 +70,34 @@ export default function AdminPlans() {
     applies_to: 'both' as 'monthly' | 'yearly' | 'both',
     status: 'active' as 'active' | 'inactive',
     valid_until: '',
+    duration_months: '',
   })
 
   // Show form toggles
   const [showPlanForm, setShowPlanForm] = useState(false)
   const [showCouponForm, setShowCouponForm] = useState(false)
+
+  // Access Codes state
+  type AccessCode = {
+    id: number
+    code: string
+    purchaser_user_id: number | null
+    purchaser_email: string | null
+    purchaser_name: string | null
+    order_id: string | null
+    status: 'active' | 'redeemed'
+    redeemed_by_user_id: number | null
+    redeemed_by_email: string | null
+    redeemed_by_name: string | null
+    duration_days: number
+    created_at: string
+    redeemed_at: string | null
+  }
+  const [accessCodes, setAccessCodes] = useState<AccessCode[]>([])
+  const [showCodeForm, setShowCodeForm] = useState(false)
+  const [codeForm, setCodeForm] = useState({ quantity: '1', duration_days: '30' })
+  const [generatedCodes, setGeneratedCodes] = useState<string[]>([])
+  const [copiedCodes, setCopiedCodes] = useState(false)
 
   const showMsg = (type: 'success' | 'error', text: string) => {
     setMessage({ type, text })
@@ -232,6 +256,7 @@ export default function AdminPlans() {
       applies_to: 'both',
       status: 'active',
       valid_until: '',
+      duration_months: '',
     })
     setEditingCouponId(null)
     setShowCouponForm(false)
@@ -247,6 +272,7 @@ export default function AdminPlans() {
       applies_to: coupon.applies_to,
       status: coupon.status,
       valid_until: coupon.valid_until ? coupon.valid_until.split('T')[0] : '',
+      duration_months: coupon.duration_months ? String(coupon.duration_months) : '',
     })
     setEditingCouponId(coupon.id)
     setShowCouponForm(true)
@@ -269,6 +295,7 @@ export default function AdminPlans() {
         applies_to: couponForm.applies_to,
         status: couponForm.status,
         valid_until: couponForm.valid_until || null,
+        duration_months: couponForm.duration_months ? parseInt(couponForm.duration_months) : null,
       }
 
       const isEdit = editingCouponId !== null
@@ -337,19 +364,89 @@ export default function AdminPlans() {
   useEffect(() => {
     fetchPlans()
     fetchCoupons()
+    fetchAccessCodes()
   }, [])
+
+  // ========== ACCESS CODES ==========
+
+  const fetchAccessCodes = async () => {
+    try {
+      const res = await fetch(apiUrl('/plans/access-codes'), {
+        headers: { 'Authorization': `Bearer ${token}` },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setAccessCodes(data)
+      }
+    } catch (e) {
+      console.error('Erro ao buscar códigos:', e)
+    }
+  }
+
+  const handleGenerateCodes = async () => {
+    setLoading(true)
+    setGeneratedCodes([])
+    try {
+      const res = await fetch(apiUrl('/plans/access-codes'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          quantity: parseInt(codeForm.quantity) || 1,
+          duration_days: parseInt(codeForm.duration_days) || 30,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Erro ao gerar códigos')
+
+      showMsg('success', data.message)
+      setGeneratedCodes(data.codes)
+      fetchAccessCodes()
+    } catch (e: any) {
+      showMsg('error', e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDeleteCode = async (id: number, code: string) => {
+    if (!confirm(`Excluir código "${code}"?`)) return
+    try {
+      const res = await fetch(apiUrl(`/plans/access-codes/${id}`), {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` },
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Erro ao excluir')
+      }
+      showMsg('success', `Código "${code}" excluído`)
+      fetchAccessCodes()
+    } catch (e: any) {
+      showMsg('error', e.message)
+    }
+  }
+
+  const handleCopyAllCodes = () => {
+    navigator.clipboard.writeText(generatedCodes.join('\n'))
+    setCopiedCodes(true)
+    setTimeout(() => setCopiedCodes(false), 3000)
+  }
 
   const tabs = [
     { id: 'plans' as Tab, label: '📋 Planos', count: plans.length },
     { id: 'coupons' as Tab, label: '🏷️ Cupons', count: coupons.length },
+    { id: 'codes' as Tab, label: '🔑 Códigos', count: accessCodes.filter(c => c.status === 'active').length },
   ]
 
   return (
     <div className="space-y-6 overflow-x-hidden">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-white">Gestão de Planos & Cupons</h1>
-        <p className="text-gray-400 text-sm mt-1">Gerencie os planos de assinatura, preços e cupons de desconto</p>
+        <h1 className="text-2xl font-bold text-white">Gestão de Planos, Cupons & Códigos</h1>
+        <p className="text-gray-400 text-sm mt-1">Gerencie planos de assinatura, cupons de desconto e códigos de acesso</p>
       </div>
 
       {/* Message */}
@@ -684,7 +781,7 @@ export default function AdminPlans() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-1.5">
                       {couponForm.discount_type === 'percentage' ? 'Percentual (%)' : 'Valor (R$)'}
@@ -706,7 +803,10 @@ export default function AdminPlans() {
                     <label className="block text-sm font-medium text-gray-400 mb-1.5">Aplica em</label>
                     <select
                       value={couponForm.applies_to}
-                      onChange={e => setCouponForm({ ...couponForm, applies_to: e.target.value as any })}
+                      onChange={e => {
+                        const val = e.target.value as 'monthly' | 'yearly' | 'both'
+                        setCouponForm({ ...couponForm, applies_to: val, duration_months: val === 'monthly' ? couponForm.duration_months : '' })
+                      }}
                       className="w-full px-4 py-2.5 bg-dark-bg border border-dark-border rounded-xl text-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                     >
                       <option value="both">📊 Mensal e Anual</option>
@@ -714,6 +814,24 @@ export default function AdminPlans() {
                       <option value="yearly">📆 Só Anual</option>
                     </select>
                   </div>
+                  {couponForm.applies_to === 'monthly' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">⏱️ Duração (opcional)</label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        min="1"
+                        max="120"
+                        value={couponForm.duration_months}
+                        onChange={e => setCouponForm({ ...couponForm, duration_months: e.target.value })}
+                        placeholder="Ex: 2"
+                        className="w-full px-4 pr-16 py-2.5 bg-dark-bg border border-dark-border rounded-xl text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm font-mono"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs">meses</span>
+                    </div>
+                    <p className="text-xs text-gray-600 mt-1">Vazio = desconto para sempre</p>
+                  </div>
+                  )}
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-1.5">Validade (opcional)</label>
                     <input
@@ -796,6 +914,11 @@ export default function AdminPlans() {
                       }`}>
                         {coupon.status === 'active' ? 'Ativo' : 'Inativo'}
                       </span>
+                      {coupon.duration_months && (
+                        <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-cyan-500/15 text-cyan-400 border border-cyan-500/30">
+                          ⏱️ {coupon.duration_months} {coupon.duration_months === 1 ? 'mês' : 'meses'}
+                        </span>
+                      )}
                       {coupon.valid_until && (
                         <span className="text-xs text-gray-500">
                           até {new Date(coupon.valid_until).toLocaleDateString('pt-BR')}
@@ -834,6 +957,191 @@ export default function AdminPlans() {
                       </button>
                       <button
                         onClick={() => handleDeleteCoupon(coupon.id, coupon.code)}
+                        className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                        title="Excluir"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+      {/* ========== TAB: CÓDIGOS DE ACESSO ========== */}
+      {activeTab === 'codes' && (
+        <div className="space-y-4">
+          {/* Botão gerar */}
+          {!showCodeForm && !generatedCodes.length && (
+            <button
+              onClick={() => { setShowCodeForm(true); setGeneratedCodes([]) }}
+              className="w-full py-3 rounded-xl border-2 border-dashed border-dark-border text-gray-400 hover:border-emerald-500/50 hover:text-emerald-400 hover:bg-emerald-500/5 transition-all duration-200 flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Gerar Códigos de Acesso
+            </button>
+          )}
+
+          {/* Formulário de geração */}
+          {showCodeForm && !generatedCodes.length && (
+            <div className="bg-dark-card border border-dark-border rounded-2xl p-5">
+              <h2 className="text-lg font-semibold text-white mb-4">🔑 Gerar Códigos de Acesso</h2>
+              <p className="text-sm text-gray-500 mb-4">Gere códigos que liberam o acesso ao sistema sem necessidade de pagamento.</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Quantidade</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={codeForm.quantity}
+                    onChange={e => setCodeForm({ ...codeForm, quantity: e.target.value })}
+                    className="w-full px-4 py-2.5 bg-dark-bg border border-dark-border rounded-xl text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1.5">Duração (dias)</label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min="1"
+                      max="3650"
+                      value={codeForm.duration_days}
+                      onChange={e => setCodeForm({ ...codeForm, duration_days: e.target.value })}
+                      className="w-full px-4 pr-14 py-2.5 bg-dark-bg border border-dark-border rounded-xl text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm font-mono"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs">dias</span>
+                  </div>
+                  <p className="text-xs text-gray-600 mt-1">30 = 1 mês, 365 = 1 ano</p>
+                </div>
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={handleGenerateCodes}
+                  disabled={loading}
+                  className="flex-1 px-6 py-2.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-500 transition-colors font-medium text-sm shadow-lg shadow-emerald-600/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? 'Gerando...' : `Gerar ${codeForm.quantity || 1} código(s)`}
+                </button>
+                <button
+                  onClick={() => setShowCodeForm(false)}
+                  className="px-6 py-2.5 bg-dark-bg border border-dark-border text-gray-400 rounded-xl hover:bg-dark-hover transition-colors text-sm"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Códigos gerados */}
+          {generatedCodes.length > 0 && (
+            <div className="bg-dark-card border border-emerald-500/30 rounded-2xl p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-white">✅ Códigos Gerados!</h2>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleCopyAllCodes}
+                    className="px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-500 transition-colors"
+                  >
+                    {copiedCodes ? '✅ Copiados!' : '📋 Copiar Todos'}
+                  </button>
+                  <button
+                    onClick={() => { setGeneratedCodes([]); setShowCodeForm(false) }}
+                    className="px-4 py-2 rounded-xl bg-dark-bg border border-dark-border text-gray-400 text-sm hover:bg-dark-hover transition-colors"
+                  >
+                    Fechar
+                  </button>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                {generatedCodes.map((code, i) => (
+                  <div
+                    key={i}
+                    onClick={() => { navigator.clipboard.writeText(code) }}
+                    className="bg-dark-bg border border-dark-border rounded-xl p-3 text-center cursor-pointer hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all group"
+                  >
+                    <span className="font-mono text-sm font-bold text-emerald-400 tracking-wider">{code}</span>
+                    <p className="text-[10px] text-gray-600 mt-1 group-hover:text-gray-400">clique para copiar</p>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 mt-3">Duração: {codeForm.duration_days} dia(s) cada código</p>
+            </div>
+          )}
+
+          {/* Lista de códigos */}
+          {accessCodes.length === 0 ? (
+            <div className="bg-dark-card border border-dark-border rounded-2xl p-8 text-center">
+              <p className="text-gray-500">Nenhum código de acesso cadastrado ainda.</p>
+            </div>
+          ) : (
+            <div className="bg-dark-card border border-dark-border rounded-2xl overflow-hidden">
+              <div className="px-5 py-4 border-b border-dark-border flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-white">Códigos de Acesso ({accessCodes.length})</h2>
+                <div className="flex gap-3 text-xs">
+                  <span className="text-emerald-400">● {accessCodes.filter(c => c.status === 'active').length} ativos</span>
+                  <span className="text-gray-500">● {accessCodes.filter(c => c.status === 'redeemed').length} resgatados</span>
+                </div>
+              </div>
+              <div className="divide-y divide-dark-border">
+                {accessCodes.map(ac => (
+                  <div key={ac.id} className="px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-dark-surface/50 transition-colors">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <span className={`font-mono text-lg font-bold tracking-wider ${ac.status === 'active' ? 'text-emerald-400' : 'text-gray-500'}`}>
+                        {ac.code}
+                      </span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                        ac.status === 'active'
+                          ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                          : 'bg-gray-500/15 text-gray-400 border border-gray-500/30'
+                      }`}>
+                        {ac.status === 'active' ? 'Ativo' : 'Resgatado'}
+                      </span>
+                      <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-500/15 text-blue-400 border border-blue-500/30">
+                        {ac.duration_days} dias
+                      </span>
+                      {ac.order_id === 'ADMIN_GENERATED' && (
+                        <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-purple-500/15 text-purple-400 border border-purple-500/30">
+                          Admin
+                        </span>
+                      )}
+                      {ac.purchaser_email && (
+                        <span className="text-xs text-gray-500">
+                          por {ac.purchaser_name || ac.purchaser_email}
+                        </span>
+                      )}
+                      {ac.redeemed_by_email && (
+                        <span className="text-xs text-cyan-400">
+                          → {ac.redeemed_by_name || ac.redeemed_by_email}
+                        </span>
+                      )}
+                      <span className="text-xs text-gray-600">
+                        {new Date(ac.created_at).toLocaleDateString('pt-BR')}
+                      </span>
+                    </div>
+                    <div className="flex gap-1 flex-shrink-0">
+                      {ac.status === 'active' && (
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(ac.code)
+                            showMsg('success', `Código "${ac.code}" copiado!`)
+                          }}
+                          className="p-1.5 text-gray-500 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-colors"
+                          title="Copiar"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleDeleteCode(ac.id, ac.code)}
                         className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
                         title="Excluir"
                       >
