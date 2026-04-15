@@ -117,6 +117,12 @@ export default function Subscription() {
   const finalPrice = calculateDiscount(basePrice, validatedCoupon)
   const hasCouponDiscount = validatedCoupon && finalPrice < basePrice
 
+  // Preço do plano mensal para os códigos de acesso
+  const monthlyPlan = plans.find(p => p.billing_type === 'monthly')
+  const monthlyPlanPrice = monthlyPlan
+    ? (paymentMethod === 'pix' ? (monthlyPlan.promo_price_pix || monthlyPlan.price_pix) : (monthlyPlan.promo_price_card || monthlyPlan.price_card))
+    : 2990
+
   useEffect(() => {
     fetchStatus()
     fetchPlans()
@@ -866,7 +872,7 @@ export default function Subscription() {
                     <button key={q} type="button" onClick={() => setQuantity(q)}
                       className={`py-3 rounded-xl text-center font-semibold transition-all duration-200 ${quantity === q ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/20' : 'bg-dark-bg border border-dark-border text-gray-400 hover:border-cyan-500/50 hover:text-white'}`}>
                       <span className="text-lg">{q}x</span>
-                      <span className="block text-xs mt-0.5 opacity-70">R$ {((q * 29.90)).toFixed(2).replace('.', ',')}</span>
+                      <span className="block text-xs mt-0.5 opacity-70">R$ {formatCurrency(q * monthlyPlanPrice)}</span>
                     </button>
                   ))}
                 </div>
@@ -875,7 +881,7 @@ export default function Subscription() {
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">Total:</span>
                   <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
-                    R$ {(quantity * 29.90).toFixed(2).replace('.', ',')}
+                    R$ {formatCurrency(quantity * monthlyPlanPrice)}
                   </span>
                 </div>
               </div>
@@ -947,8 +953,8 @@ export default function Subscription() {
                     Processando...
                   </span>
                 ) : paymentMethod === 'pix'
-                  ? `📱 Gerar PIX — R$ ${(quantity * 29.90).toFixed(2).replace('.', ',')}`
-                  : `💳 Comprar ${quantity} código${quantity > 1 ? 's' : ''} — R$ ${(quantity * 29.90).toFixed(2).replace('.', ',')}`}
+                  ? `📱 Gerar PIX — R$ ${formatCurrency(quantity * monthlyPlanPrice)}`
+                  : `💳 Comprar ${quantity} código${quantity > 1 ? 's' : ''} — R$ ${formatCurrency(quantity * monthlyPlanPrice)}`}
               </button>
             </form>
             )}
