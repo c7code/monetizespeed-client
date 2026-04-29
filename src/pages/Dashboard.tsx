@@ -3,12 +3,15 @@ import { useData } from '../store/data'
 import { useAuth } from '../store/auth'
 import { Link } from 'react-router-dom'
 import PieChart from '../components/PieChart'
+import BarChart from '../components/BarChart'
 import Chat from './Chat'
 
 export default function Dashboard() {
-  const { transactions, budgets } = useData()
+  const { transactions, budgets, bills, receivables } = useData()
   const { user } = useAuth()
   const [chatOpen, setChatOpen] = useState(false)
+  const [chartMonth, setChartMonth] = useState(new Date().getMonth())
+  const [chartYear, setChartYear] = useState(new Date().getFullYear())
 
   // Balance calculations
   const balance = useMemo(() =>
@@ -90,6 +93,43 @@ export default function Dashboard() {
       .slice(0, 5),
     [transactions]
   )
+
+  // Contas a Receber x Contas a Pagar — 6 meses até o mês selecionado
+  const receivablesVsPayables = useMemo(() => {
+    const months: { label: string, receivable: number, payable: number }[] = []
+    const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(chartYear, chartMonth - i, 1)
+      const month = d.getMonth()
+      const year = d.getFullYear()
+
+      const receivableTotal = receivables
+        .filter(r => {
+          const rd = new Date(r.due_date)
+          const offset = rd.getTimezoneOffset() * 60000
+          const adj = new Date(rd.getTime() + offset)
+          return adj.getMonth() === month && adj.getFullYear() === year
+        })
+        .reduce((acc, r) => acc + r.amount, 0)
+
+      const payableTotal = bills
+        .filter(b => {
+          const bd = new Date(b.due_date)
+          const offset = bd.getTimezoneOffset() * 60000
+          const adj = new Date(bd.getTime() + offset)
+          return adj.getMonth() === month && adj.getFullYear() === year
+        })
+        .reduce((acc, b) => acc + b.amount, 0)
+
+      months.push({
+        label: `${monthNames[month]}/${String(year).slice(2)}`,
+        receivable: receivableTotal,
+        payable: payableTotal,
+      })
+    }
+    return months
+  }, [bills, receivables, chartMonth, chartYear])
 
   const formatCurrency = (value: number) =>
     value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -289,6 +329,42 @@ export default function Dashboard() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Contas a Receber x Contas a Pagar */}
+      <div className="dark-card p-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-100">Contas a Receber x Contas a Pagar</h3>
+            <p className="text-xs text-gray-500 mt-0.5">Comparativo dos 6 meses até o período selecionado</p>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <select
+              value={chartMonth}
+              onChange={e => setChartMonth(Number(e.target.value))}
+              className="bg-dark-surface text-white rounded-lg px-3 py-1.5 text-sm border border-dark-border focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              {['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'].map((m, i) => (
+                <option key={i} value={i}>{m}</option>
+              ))}
+            </select>
+            <select
+              value={chartYear}
+              onChange={e => setChartYear(Number(e.target.value))}
+              className="bg-dark-surface text-white rounded-lg px-3 py-1.5 text-sm border border-dark-border focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              {[2024, 2025, 2026, 2027].map(y => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+            <div className="hidden sm:flex items-center gap-2 ml-2">
+              <Link to="/app/receivables" className="text-xs text-green-400 hover:text-green-300 font-medium transition-colors">Receber</Link>
+              <span className="text-gray-600">|</span>
+              <Link to="/app/bills" className="text-xs text-red-400 hover:text-red-300 font-medium transition-colors">Pagar</Link>
+            </div>
+          </div>
+        </div>
+        <BarChart data={receivablesVsPayables} height={260} />
       </div>
 
       {/* Transações Recentes */}
